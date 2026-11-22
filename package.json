@@ -1,0 +1,17 @@
+{
+  "name": "bolehnginep",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "node tests/static.test.cjs && node build.mjs",
+    "test": "node tests/server.test.cjs && node tests/admin-fields.test.cjs && node tests/static.test.cjs",
+    "gas:login": "clasp login",
+    "gas:push": "clasp push",
+    "gas:deploy": "clasp deploy --deploymentId $GAS_DEPLOYMENT_ID --description \"$GAS_DESC\""
+  },
+  "devDependencies": {
+    "tailwindcss": "^3.4.17",
+    "esbuild": "^0.24.0",
+    "@google/clasp": "^2.4.2"
+  }
+}
