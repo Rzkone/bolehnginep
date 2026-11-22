@@ -1,0 +1,9 @@
+node_modules
+dist
+.DS_Store
+.env
+
+.clasp.json
+node_modules
+dist
+_test.html
