@@ -1,0 +1,1372 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>bolehnginep — Nginep di rumah warga dekat alam Indonesia</title>
+<meta name="description" content="Nginep di rumah warga dekat wisata alam Indonesia. Harga per tamu per malam tertera di tiap rumah.">
+<meta name="theme-color" content="#FBFAF7">
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg%20xmlns=%22http://www.w3.org/2000/svg%22%20viewBox=%220%200%2064%2064%22%3E%3Crect%20width=%2264%22%20height=%2264%22%20rx=%2214%22%20fill=%22%231F4D3A%22/%3E%3Cpath%20d=%22M10%2052V35L23%2019L31%2027L42%2014L54%2031V52Z%22%20fill=%22%23FBFAF7%22/%3E%3Crect%20x=%2228%22%20y=%2237%22%20width=%228%22%20height=%2215%22%20fill=%22%231F4D3A%22/%3E%3C/svg%3E">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" media="print" onload="this.media='all'" href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400..800&display=swap">
+<link rel="preconnect" href="https://images.unsplash.com" crossorigin>
+<script src="https://cdn.tailwindcss.com"></script>
+<script>
+tailwind.config = { theme: { extend: {
+  colors: { cream: '#F3F1EB', forest: '#17201B', terra: '#B4472A', ink: '#1B1F1D', leaf: '#1F4D3A', mint: '#E8EFEA' },
+  fontFamily: { display: ['"Plus Jakarta Sans"', 'ui-sans-serif', 'system-ui', '-apple-system', '"Segoe UI"', 'Roboto', '"Helvetica Neue"', 'Arial', 'sans-serif'] }
+} } };
+</script>
+<style>
+  html { scrollbar-gutter: stable; -webkit-text-size-adjust: 100%; }
+  body { background: #FBFAF7; color: #1B1F1D; overflow-x: hidden; font-family: "Plus Jakarta Sans", ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif; }
+  .wm-accent { color: #1F4D3A; }
+  .font-display { letter-spacing: -.03em; font-weight: 700; }
+  *:focus-visible { outline: 3px solid #1F4D3A; outline-offset: 2px; }
+  .noscroll::-webkit-scrollbar { display: none; } .noscroll { scrollbar-width: none; }
+  .card-lift { transition: transform .2s ease, box-shadow .2s ease; }
+  .card-lift:hover { transform: translateY(-2px); box-shadow: 0 16px 32px -16px rgba(23,32,27,.28); }
+  input[type=range] { accent-color: #1F4D3A; }
+  /* iOS Safari: kolom tanggal punya lebar bawaan yang melewati panel; paksa mengikuti kolom */
+  input[type=date], input[type=time] { display: block; width: 100%; min-width: 0; max-width: 100%; -webkit-appearance: none; appearance: none; text-align: left; min-height: 44px; }
+  input[type=date]::-webkit-date-and-time-value { text-align: left; min-height: 1.4em; }
+  .net-bar { position: fixed; left: 0; top: 0; height: 3px; width: 100%; z-index: 90; background: linear-gradient(90deg, transparent, #B4472A, transparent); background-size: 40% 100%; background-repeat: no-repeat; animation: netslide 1s linear infinite; }
+  .net-bar[hidden] { display: none; }
+  @keyframes netslide { from { background-position: -40% 0; } to { background-position: 140% 0; } }
+  .btn-wait { pointer-events: none; opacity: .75; }
+  .btn-wait::after { content: ''; display: inline-block; width: .9em; height: .9em; margin-left: .5em; vertical-align: -.1em; border: 2px solid currentColor; border-right-color: transparent; border-radius: 50%; opacity: 0; animation: spinr .7s linear infinite, showr 0s .3s forwards; }
+  @keyframes spinr { to { transform: rotate(360deg); } } @keyframes showr { to { opacity: 1; } }
+  .drag-x { cursor: grab; } .drag-x.dragging { cursor: grabbing; user-select: none; } .drag-x.dragging * { pointer-events: none; }
+
+  /* Layer: bottom sheet (mobile) / right drawer (desktop) / centered dialog */
+  #backdrop { position: fixed; inset: 0; background: rgba(23,32,27,.55); opacity: 0; visibility: hidden; transition: opacity .25s ease, visibility 0s .25s; z-index: 40; }
+  #backdrop[data-open="true"] { opacity: 1; visibility: visible; transition-delay: 0s; }
+  .layer { position: fixed; z-index: 50; background: #fff; display: flex; flex-direction: column; visibility: hidden;
+    transition: transform .28s ease, opacity .2s ease, visibility 0s .28s; will-change: transform; }
+  .layer[data-open="true"] { visibility: visible; transform: none; transition-delay: 0s; }
+  #detailPanel, .modal { left: 0; right: 0; bottom: 0; max-height: 90dvh; border-radius: 1.5rem 1.5rem 0 0; transform: translateY(100%); }
+  @media (min-width: 1024px) {
+    #detailPanel { left: 0; top: 0; bottom: 0; right: 0; width: auto; max-height: none; height: 100dvh; border-radius: 0; background: #FBFAF7; transform: translateY(2rem); opacity: 0; }
+    .modal { left: 50%; right: auto; top: 50%; bottom: auto; width: min(640px, 92vw); max-height: 86dvh; border-radius: 1.5rem; transform: translate(-50%, -46%); opacity: 0; }
+    .modal[data-open="true"] { transform: translate(-50%, -50%); opacity: 1; }
+  }
+  #detailPanel[data-open="true"] { transform: none; opacity: 1; }
+  #toast { position: fixed; left: 50%; bottom: calc(env(safe-area-inset-bottom) + 96px); transform: translate(-50%, 12px); opacity: 0; pointer-events: none;
+    z-index: 70; max-width: min(92vw, 440px); transition: opacity .2s ease, transform .2s ease; }
+  #toast[data-show="true"] { opacity: 1; transform: translate(-50%, 0); }
+  .btn { min-height: 44px; display: inline-flex; align-items: center; justify-content: center; gap: .5rem; padding: .5rem 1rem; border-radius: 9999px; font-weight: 600; transition: transform .15s ease, background-color .15s ease; }
+  .btn:active { transform: scale(.98); }
+  .btn-primary { background: #1F4D3A; color: #fff; } .btn-primary:hover { background: #173B2C; }
+  .btn-terra { background: #1F4D3A; color: #fff; } .btn-terra:hover { background: #173B2C; }
+  .btn-ghost { background: #fff; color: #17201B; border: 1.5px solid #DAD6CC; } .btn-ghost:hover { background: #F3F1EB; border-color: #17201B; }
+  .field { width: 100%; min-height: 44px; border: 1.5px solid #DAD6CC; border-radius: .875rem; padding: .5rem .8rem; background: #fff; font-size: 16px; }
+  .field:focus { border-color: #1F4D3A; outline: none; box-shadow: 0 0 0 3px rgba(31,77,58,.18); }
+  .stepbtn { display: inline-flex; align-items: center; justify-content: center; padding: 0; width: 44px; height: 44px; border-radius: 9999px; border: 1.5px solid #DAD6CC; color: #17201B; font-size: 20px; font-weight: 700; line-height: 1; background: #fff; }
+  .stepbtn:disabled { opacity: .35; }
+  details > summary { list-style: none; cursor: pointer; } details > summary::-webkit-details-marker { display: none; }
+  details[open] .chev { transform: rotate(180deg); }
+  @media (prefers-reduced-motion: reduce) { * { transition-duration: .01ms !important; } }
+</style>
+</head>
+<body class="font-sans antialiased">
+<div id="netBar" class="net-bar" hidden role="progressbar" aria-label="Memuat"></div>
+<noscript><p style="padding:2rem;text-align:center">bolehnginep memerlukan JavaScript untuk menampilkan katalog.</p></noscript>
+
+<!-- HEADER -->
+<header class="bg-white/95 backdrop-blur sticky top-0 z-30 border-b border-black/5">
+  <div class="max-w-[1600px] mx-auto px-4 sm:px-6 h-16 flex items-center justify-between gap-2">
+    <a href="#top" class="flex items-center gap-2 min-w-0" aria-label="bolehnginep">
+      <svg class="w-8 h-8 shrink-0" viewBox="0 0 64 64" aria-hidden="true"><rect width="64" height="64" rx="14" fill="#1F4D3A"/><path d="M10 52V35L23 19L31 27L42 14L54 31V52Z" fill="#FBFAF7"/><rect x="28" y="37" width="8" height="15" fill="#1F4D3A"/></svg>
+      <span class="font-display text-xl sm:text-2xl text-forest tracking-tight truncate">boleh<span class="wm-accent">nginep</span></span>
+    </a>
+    <nav class="flex items-center gap-1.5 sm:gap-2" aria-label="Menu">
+      <button id="btnReview" class="btn btn-ghost !px-3 text-sm" aria-label="Beri ulasan"><svg class="w-5 h-5" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l2.9 6.6 7.1.6-5.4 4.7 1.7 7-6.3-3.8-6.3 3.8 1.7-7L2 9.2l7.1-.6z"/></svg><span class="hidden md:inline" data-i18n="navReview">Tulis ulasan</span></button>
+      <button id="btnRegTop" class="btn btn-primary !px-4 text-sm !hidden sm:!inline-flex">Daftarkan rumah</button>
+    </nav>
+  </div>
+</header>
+
+<main id="top" class="max-w-[1600px] mx-auto px-4 sm:px-6 pb-16">
+  <!-- HERO + FILTER -->
+  <section class="pt-6 sm:pt-10">
+    <div class="lg:relative lg:rounded-[2rem] lg:overflow-hidden lg:min-h-[28rem] lg:flex lg:items-center lg:bg-forest"><div id="heroPhotos" class="hidden lg:block lg:absolute lg:inset-0" aria-hidden="true"></div><div class="hidden lg:block lg:absolute lg:inset-0 lg:bg-gradient-to-r lg:from-forest/90 lg:via-forest/60 lg:to-forest/10" aria-hidden="true"></div><div class="lg:relative lg:z-10 lg:max-w-2xl lg:px-14 lg:pt-10 lg:pb-24">
+    <p class="inline-block rounded-full bg-mint text-leaf lg:bg-white/15 lg:text-white font-bold text-xs tracking-wide px-3 py-1.5" data-i18n="heroKicker">Rumah warga · Dekat wisata alam</p>
+    <h1 class="font-display text-4xl sm:text-5xl lg:text-6xl text-forest lg:text-white leading-[1.05] mt-3 max-w-2xl" data-i18n="heroTitle">Nginep di rumah warga. Paginya, alam sudah di depan pintu.</h1>
+    <p class="mt-3 text-base sm:text-lg text-ink/75 lg:text-white/85 max-w-xl" data-i18n="heroSub">Kamu tidur di rumah keluarga setempat, dekat wisata alam yang mau kamu datangi. Harga kamar ada di tiap rumah, layanan tambahan bayar langsung ke tuan rumah.</p>
+    <button type="button" data-how class="mt-2 min-h-[44px] underline underline-offset-4 decoration-leaf text-leaf lg:text-white lg:decoration-white font-bold" data-i18n="howLink">Cara kerjanya gimana? ›</button>
+    </div></div>
+
+    <div class="mt-6 lg:-mt-14 lg:relative lg:z-10 lg:mx-8 lg:grid lg:grid-cols-12 lg:gap-x-4 lg:gap-y-3 lg:items-end bg-white rounded-3xl p-4 sm:p-5 lg:p-6 shadow-[0_12px_40px_-12px_rgba(23,32,27,.35)] border border-black/5">
+      <label for="q" class="sr-only" data-i18n="searchLabel">Cari</label>
+      <div class="relative lg:col-span-4 lg:self-center">
+        <svg class="w-5 h-5 absolute left-3.5 top-1/2 -translate-y-1/2 text-ink/50" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg>
+        <input id="q" type="search" autocomplete="off" class="field !pl-11" data-i18n-ph="searchPh" placeholder="Cari destinasi, kota, nama rumah, layanan…">
+      </div>
+      <div id="pills" class="mt-3 lg:mt-0 lg:col-span-8 lg:self-center -mx-4 sm:mx-0 px-4 sm:px-0 flex gap-2 overflow-x-auto noscroll sm:overflow-visible sm:flex-wrap" role="group" aria-label="Suasana"></div>
+      <div class="mt-4 lg:mt-3 lg:col-span-6 grid grid-cols-2 sm:grid-cols-3 gap-3">
+        <div class="col-span-2 sm:col-span-1 min-w-0"><label for="fltDate" class="text-sm font-semibold" data-i18n="fltDate">Tanggal check-in</label><input id="fltDate" type="date" class="field"></div>
+        <div class="min-w-0"><label for="fltNights" class="text-sm font-semibold" data-i18n="fltNights">Malam</label><select id="fltNights" class="field"></select></div>
+        <div class="min-w-0"><label for="sortBy" class="text-sm font-semibold" data-i18n="fltSort">Urutkan</label><select id="sortBy" class="field"></select></div>
+      </div>
+      <div class="mt-4 lg:mt-3 lg:col-span-6 flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-6">
+        <div class="flex-1 min-w-0">
+          <div class="flex items-center justify-between text-sm font-semibold"><label for="price" data-i18n="priceMax">Harga maks. per malam</label><output id="priceOut" class="text-leaf"></output></div>
+          <input id="price" type="range" class="w-full h-11" step="5000">
+        </div>
+        <div class="shrink-0 rounded-2xl bg-mint text-forest px-4 py-2.5 text-center sm:min-w-[11rem]" aria-live="polite"><span id="count" class="font-display text-2xl text-leaf">0</span> <span class="text-sm" data-i18n="countLabel">rumah aktif</span></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- AREA / DESTINASI -->
+  <section class="mt-10" aria-labelledby="areaTitle">
+    <h2 id="areaTitle" class="font-display text-2xl sm:text-3xl text-forest mb-3" data-i18n="areaTitle">Jelajahi per destinasi</h2>
+    <div id="areas" class="-mx-4 sm:mx-0 px-4 sm:px-0 flex gap-3 overflow-x-auto noscroll snap-x scroll-px-4 pb-1 lg:grid lg:grid-cols-4 2xl:grid-cols-8 lg:gap-4 lg:overflow-visible"></div>
+  </section>
+
+  <!-- BENTO -->
+  <section class="mt-8 grid grid-cols-1 lg:grid-cols-12 gap-4 sm:gap-5" aria-label="Sorotan">
+    <div id="spotlight" class="lg:col-span-7"></div>
+    <div id="flow" class="lg:col-span-5"></div>
+  </section>
+
+  <!-- CATALOG -->
+  <section id="catalog" class="mt-10 scroll-mt-20" aria-labelledby="catTitle">
+    <div class="flex flex-col sm:flex-row sm:items-end justify-between gap-1 sm:gap-3 mb-4">
+      <h2 id="catTitle" class="font-display text-2xl sm:text-3xl text-forest" data-i18n="catTitle">Rumah untuk kamu</h2>
+      <p id="demoNote" class="hidden text-xs sm:text-sm text-ink/60 sm:text-right"></p>
+    </div>
+    <div id="areaBar" class="hidden mb-4 flex flex-wrap items-center gap-2"></div>
+    <div id="rows" class="space-y-9 lg:hidden"></div>
+    <div id="grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-4 sm:gap-5"></div>
+    <div id="empty" class="hidden text-center py-14 bg-white rounded-3xl border border-dashed border-black/15">
+      <p class="font-display text-xl text-forest" data-i18n="emptyTitle">Belum ada rumah yang cocok.</p>
+      <p class="text-ink/65 mt-1" data-i18n="emptySub">Coba longgarkan harga atau ganti suasana.</p>
+      <p id="emptyDate" class="hidden text-terra font-semibold mt-2" data-i18n="fltNone">Tidak ada rumah kosong pada tanggal itu.</p>
+      <button id="btnReset" class="btn btn-primary mt-4" data-i18n="reset">Reset filter</button>
+    </div>
+  </section>
+</main>
+
+<footer class="bg-forest text-white pb-6 mt-4">
+  <div class="max-w-[1600px] mx-auto px-4 sm:px-6 pt-10 grid gap-6 md:grid-cols-2">
+    <div>
+      <p class="font-display text-2xl flex items-center gap-2.5"><svg class="w-8 h-8 shrink-0" viewBox="0 0 64 64" aria-hidden="true"><rect width="64" height="64" rx="14" fill="#FBFAF7"/><path d="M10 52V35L23 19L31 27L42 14L54 31V52Z" fill="#17201B"/><rect x="28" y="37" width="8" height="15" fill="#FBFAF7"/></svg><span>boleh<span style="color:#9fd3b5">nginep</span></span></p>
+      <p class="mt-2 text-white/75 max-w-md" data-i18n="footAbout"></p>
+    </div>
+    <div class="flex flex-wrap gap-3 md:justify-end items-start">
+      <button id="btnRegFoot" class="btn bg-leaf text-white"><span data-i18n="footReg">Daftarkan Rumahmu</span></button>
+      <button id="btnStatusFoot" class="btn border border-white/60 text-white"><span data-i18n="footStatus">Cek Booking</span></button>
+    </div>
+  </div>
+  <div class="max-w-[1600px] mx-auto px-4 sm:px-6 mt-4 flex flex-wrap gap-x-1 gap-y-0 text-sm text-white/80">
+    <button type="button" data-how class="min-h-[44px] px-3 underline underline-offset-2 hover:text-white" data-i18n="footHow">Cara Kerja</button>
+    <button id="btnRulesFoot" class="min-h-[44px] px-3 underline underline-offset-2 hover:text-white" data-i18n="footRules">Aturan & Standar</button>
+    <button id="btnTermsFoot" class="min-h-[44px] px-3 underline underline-offset-2 hover:text-white" data-i18n="footTerms">Syarat & Privasi</button>
+    <button id="btnReviewFoot" class="min-h-[44px] px-3 underline underline-offset-2 hover:text-white" data-i18n="navReview">Tulis Ulasan</button>
+    <button id="btnCompFoot" class="min-h-[44px] px-3 underline underline-offset-2 hover:text-white" data-i18n="footComplaint">Komplain</button>
+  </div>
+  <div class="max-w-[1600px] mx-auto px-4 sm:px-6 mt-2 pt-2 border-t border-white/10 flex items-center justify-between gap-3 text-xs text-white/50">
+    <span>© bolehnginep</span>
+    <span class="flex items-center"><button id="btnPartnerFoot" class="min-h-[44px] px-3 underline underline-offset-2 hover:text-white/80" data-i18n="footPartner">Portal mitra</button><button id="btnDispatchFoot" class="min-h-[44px] px-3 underline underline-offset-2 hover:text-white/80" data-i18n="footAdmin">Admin</button></span>
+  </div>
+</footer>
+
+<div id="backdrop" data-open="false" aria-hidden="true"></div>
+
+<!-- DETAIL PANEL -->
+<div id="detailPanel" class="layer" role="dialog" aria-modal="true" aria-labelledby="dpTitle" data-open="false">
+  <div class="lg:hidden shrink-0 mx-auto mt-2 h-1.5 w-10 rounded-full bg-black/15" aria-hidden="true"></div>
+  <div class="shrink-0 flex items-start justify-between gap-3 px-5 lg:px-[max(2rem,calc((100vw-72rem)/2+2rem))] pt-5 pb-3 border-b border-black/5 bg-white">
+    <div class="min-w-0"><p id="dpDest" class="text-leaf text-sm font-semibold"></p><h2 id="dpTitle" class="font-display text-2xl text-forest leading-tight"></h2></div>
+    <div class="flex items-center gap-2 shrink-0"><button id="dpShare" class="stepbtn" aria-label="Bagikan"><svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><path d="M8.6 10.5l6.8-4M8.6 13.5l6.8 4"/></svg></button><button id="dpClose" class="stepbtn" aria-label="Tutup">×</button></div>
+  </div>
+  <div id="dpBody" class="flex-1 min-h-0 overflow-y-auto overscroll-contain"></div>
+  <div id="dpFooter" class="shrink-0 border-t border-black/10 bg-white px-4 sm:px-5 lg:px-[max(2rem,calc((100vw-72rem)/2+2rem))] pt-3 pb-[calc(env(safe-area-inset-bottom)+12px)]"></div>
+</div>
+
+<!-- REVIEW MODAL -->
+<div id="reviewModal" class="layer modal" role="dialog" aria-modal="true" aria-labelledby="rvTitle" data-open="false">
+  <div class="shrink-0 flex items-center justify-between gap-3 px-5 pt-5 pb-3 border-b border-black/5">
+    <h2 id="rvTitle" class="font-display text-2xl text-forest" data-i18n="rvTitle">Ulasan Tamu</h2>
+    <button class="stepbtn shrink-0" data-close="reviewModal" aria-label="Tutup">×</button>
+  </div>
+  <form id="rvForm" class="flex-1 min-h-0 overflow-y-auto overscroll-contain px-5 py-4 space-y-4" novalidate>
+    <p class="text-sm text-ink/70" data-i18n="rvIntro">Masukkan Kode Booking dan 4 digit terakhir nomor WA yang dipakai saat booking. Satu booking untuk satu ulasan.</p>
+    <p id="rvDemoHint" class="hidden text-xs bg-cream rounded-xl p-3 text-ink/70"></p>
+    <div class="grid grid-cols-2 gap-3">
+      <div><label class="text-sm font-semibold" for="rvCode" data-i18n="rvCode">Kode Booking</label><input id="rvCode" class="field uppercase" autocomplete="off" placeholder="BN-261101-ABCD"></div>
+      <div><label class="text-sm font-semibold" for="rvLast4" data-i18n="rvLast4">4 digit akhir WA</label><input id="rvLast4" class="field" inputmode="numeric" maxlength="4" autocomplete="off" placeholder="1234"></div>
+    </div>
+    <fieldset class="rounded-2xl border border-black/10 p-4"><legend class="px-2 text-sm font-bold text-forest" data-i18n="rvHome">1 · Rumah yang ditempati</legend>
+      <div class="stars" data-star="home" role="radiogroup" aria-label="Rating rumah"></div>
+      <textarea id="rvTextHome" rows="2" maxlength="500" class="field mt-2" data-i18n-ph="rvTextPh" placeholder="Ceritakan kamar, kebersihan, suasana…"></textarea>
+    </fieldset>
+    <fieldset class="rounded-2xl border border-black/10 p-4"><legend class="px-2 text-sm font-bold text-forest" data-i18n="rvHost">2 · Tuan rumah & pendamping</legend>
+      <div class="stars" data-star="host" role="radiogroup" aria-label="Rating tuan rumah dan pendamping"></div>
+      <textarea id="rvTextHost" rows="2" maxlength="500" class="field mt-2" data-i18n-ph="rvTextPh2" placeholder="Ceritakan keramahan, kecepatan balasan, bantuan pendamping…"></textarea>
+    </fieldset>
+    <p id="rvErr" class="text-sm text-terra font-semibold min-h-[1.25rem]" role="alert"></p>
+  </form>
+  <div class="shrink-0 border-t border-black/10 px-5 pt-3 pb-[calc(env(safe-area-inset-bottom)+12px)]"><button id="rvSubmit" class="btn btn-terra w-full" data-i18n="rvSubmit">Kirim Ulasan</button></div>
+</div>
+
+<!-- DISPATCH MODAL -->
+<div id="dispatchModal" class="layer modal" role="dialog" aria-modal="true" aria-labelledby="dpcTitle" data-open="false">
+  <div class="shrink-0 flex items-center justify-between gap-3 px-5 pt-5 pb-3 border-b border-black/5">
+    <h2 id="dpcTitle" class="font-display text-2xl text-forest" data-i18n="dpcTitle">Admin: kirim ke PIC & host</h2>
+    <button class="stepbtn shrink-0" data-close="dispatchModal" aria-label="Tutup">×</button>
+  </div>
+  <div id="dpcBody" class="flex-1 min-h-0 overflow-y-auto overscroll-contain px-5 py-4 space-y-4"></div>
+</div>
+
+<!-- PARTNER PORTAL MODAL -->
+<div id="partnerModal" class="layer modal" role="dialog" aria-modal="true" aria-labelledby="ptTitle" data-open="false">
+  <div class="shrink-0 flex items-center justify-between gap-3 px-5 pt-5 pb-3 border-b border-black/5">
+    <h2 id="ptTitle" class="font-display text-2xl text-forest" data-i18n="footPartner">Portal mitra</h2>
+    <button class="stepbtn shrink-0" data-close="partnerModal" aria-label="Tutup">×</button>
+  </div>
+  <div id="ptBody" class="flex-1 min-h-0 overflow-y-auto overscroll-contain px-5 py-4 space-y-4"></div>
+</div>
+
+<!-- STATUS MODAL -->
+<div id="statusModal" class="layer modal" role="dialog" aria-modal="true" aria-labelledby="stTitle" data-open="false">
+  <div class="shrink-0 flex items-center justify-between gap-3 px-5 pt-5 pb-3 border-b border-black/5">
+    <h2 id="stTitle" class="font-display text-2xl text-forest" data-i18n="stTitle">Cek Booking</h2>
+    <button class="stepbtn shrink-0" data-close="statusModal" aria-label="Tutup">×</button>
+  </div>
+  <div class="flex-1 min-h-0 overflow-y-auto overscroll-contain px-5 py-4 space-y-4">
+    <p class="text-sm text-ink/70" data-i18n="stIntro"></p>
+    <p id="stDemoHint" class="hidden text-xs bg-cream rounded-xl p-3 text-ink/70"></p>
+    <div class="grid grid-cols-2 gap-3">
+      <div><label class="text-sm font-semibold" for="stCode" data-i18n="rvCode">Kode booking</label><input id="stCode" class="field uppercase" autocomplete="off" placeholder="BN-261101-ABCD"></div>
+      <div><label class="text-sm font-semibold" for="stLast4" data-i18n="rvLast4">4 digit terakhir WA</label><input id="stLast4" class="field" inputmode="numeric" maxlength="4" autocomplete="off" placeholder="1234"></div>
+    </div>
+    <p id="stErr" class="text-sm text-terra font-semibold min-h-[1.25rem]" role="alert"></p>
+    <button id="stGo" type="button" class="btn btn-primary w-full" data-i18n="stCheck">Cek status</button>
+    <div id="stResult"></div>
+  </div>
+</div>
+
+<!-- COMPLAINT MODAL -->
+<div id="compModal" class="layer modal" role="dialog" aria-modal="true" aria-labelledby="cpTitle" data-open="false">
+  <div class="shrink-0 flex items-center justify-between gap-3 px-5 pt-5 pb-3 border-b border-black/5">
+    <h2 id="cpTitle" class="font-display text-2xl text-forest" data-i18n="cpTitle">Komplain / Laporan</h2>
+    <button class="stepbtn shrink-0" data-close="compModal" aria-label="Tutup">×</button>
+  </div>
+  <form id="cpForm" class="flex-1 min-h-0 overflow-y-auto overscroll-contain px-5 py-4 space-y-3" novalidate>
+    <p class="text-sm text-ink/70" data-i18n="cpIntro"></p>
+    <div class="grid grid-cols-2 gap-3">
+      <div><label class="text-sm font-semibold" for="cpCode" data-i18n="rvCode">Kode booking</label><input id="cpCode" class="field uppercase" autocomplete="off" placeholder="BN-261101-ABCD"></div>
+      <div><label class="text-sm font-semibold" for="cpLast4" data-i18n="rvLast4">4 digit terakhir WA</label><input id="cpLast4" class="field" inputmode="numeric" maxlength="4" autocomplete="off" placeholder="1234"></div>
+    </div>
+    <div><label class="text-sm font-semibold" for="cpCat" data-i18n="cpCat">Jenis masalah</label><select id="cpCat" class="field"></select></div>
+    <div><label class="text-sm font-semibold" for="cpDesc" data-i18n="cpDesc">Ceritakan masalahnya</label><textarea id="cpDesc" rows="4" maxlength="800" class="field"></textarea></div>
+    <div style="position:absolute;left:-9999px;height:0;overflow:hidden" aria-hidden="true"><input id="cpHp" tabindex="-1" autocomplete="off"></div>
+    <p id="cpErr" class="text-sm text-terra font-semibold min-h-[1.25rem]" role="alert"></p>
+  </form>
+  <div class="shrink-0 border-t border-black/10 px-5 pt-3 pb-[calc(env(safe-area-inset-bottom)+12px)]"><button id="cpSubmit" class="btn btn-terra w-full" data-i18n="cpSubmit">Kirim laporan</button></div>
+</div>
+
+<!-- RULES MODAL -->
+<div id="rulesModal" class="layer modal" role="dialog" aria-modal="true" aria-labelledby="ruTitle" data-open="false">
+  <div class="shrink-0 flex items-center justify-between gap-3 px-5 pt-5 pb-3 border-b border-black/5">
+    <h2 id="ruTitle" class="font-display text-2xl text-forest" data-i18n="footRules">Aturan & Standar</h2>
+    <button class="stepbtn shrink-0" data-close="rulesModal" aria-label="Tutup">×</button>
+  </div>
+  <div id="ruTabs" class="shrink-0 flex flex-wrap gap-2 px-5 py-3" role="tablist"></div>
+  <div id="ruBody" class="flex-1 min-h-0 overflow-y-auto overscroll-contain px-5 pb-6"></div>
+</div>
+
+<!-- HOW IT WORKS MODAL -->
+<div id="howModal" class="layer modal" role="dialog" aria-modal="true" aria-labelledby="howTitle" data-open="false">
+  <div class="shrink-0 flex items-center justify-between gap-3 px-5 pt-5 pb-3 border-b border-black/5">
+    <h2 id="howTitle" class="font-display text-2xl text-forest" data-i18n="howTitle">Cara kerja & menginap live-in</h2>
+    <button class="stepbtn shrink-0" data-close="howModal" aria-label="Tutup">×</button>
+  </div>
+  <div id="howBody" class="flex-1 min-h-0 overflow-y-auto overscroll-contain px-5 pb-6"></div>
+</div>
+
+<!-- REGISTER HOME MODAL -->
+<div id="regModal" class="layer modal" role="dialog" aria-modal="true" aria-labelledby="rgTitle" data-open="false">
+  <div class="shrink-0 flex items-center justify-between gap-3 px-5 pt-5 pb-3 border-b border-black/5">
+    <h2 id="rgTitle" class="font-display text-2xl text-forest" data-i18n="footReg">Daftarkan Rumahmu</h2>
+    <button class="stepbtn shrink-0" data-close="regModal" aria-label="Tutup">×</button>
+  </div>
+  <form id="rgForm" class="flex-1 min-h-0 overflow-y-auto overscroll-contain px-5 py-4 space-y-3" novalidate>
+    <p class="text-sm text-ink/70" id="rgIntro"></p>
+    <div id="rgFields" class="space-y-3"></div>
+    <label class="flex items-start gap-3 text-sm"><input id="rgAgree" type="checkbox" class="w-5 h-5 mt-0.5 accent-[#B4472A] shrink-0"><span id="rgAgreeTxt"></span></label>
+    <p id="rgErr" class="text-sm text-terra font-semibold min-h-[1.25rem]" role="alert"></p>
+  </form>
+  <div class="shrink-0 border-t border-black/10 px-5 pt-3 pb-[calc(env(safe-area-inset-bottom)+12px)]"><button id="rgSubmit" class="btn btn-terra w-full" data-i18n="rgSubmit">Kirim Pendaftaran</button></div>
+</div>
+
+<div id="toast" role="status" aria-live="polite" class="rounded-2xl bg-ink text-white text-sm font-medium px-4 py-3 shadow-xl"></div>
+
+<script>
+(function () {
+'use strict';
+
+/* ============ KONFIGURASI ============ */
+const APPS_SCRIPT_URL = '';          // ← tempel URL Web App Google Apps Script (…/exec). Kosong = mode demo (data sampel + penyimpanan lokal).
+const WA_DARURAT = '';           // ← nomor darurat 24 jam (format 62…). Kosong = tidak ditampilkan
+const WA_PUSAT = '6281234567890';    // ← nomor WA admin format internasional tanpa + (placeholder)
+const DEMO_ADMIN_PIN = '1234';       // hanya untuk mode demo. Mode live memakai ADMIN_TOKEN di Script Properties.
+const MAX_NIGHTS = 5;
+const MAX_PRICE = 100000;            // plafon tarif kamar per tamu per malam (sama dengan CFG di Code.gs)
+const PLAUSIBLE_DOMAIN = '';          // opsional: isi domain (mis. 'bolehnginep.com') untuk mengaktifkan analitik tanpa cookie Plausible
+const MAX_PEAK_PRICE = 130000;       // plafon tarif musim ramai (sama dengan CFG di Code.gs)
+const COMPANY_BANK = 'NAMA BANK + NO. REKENING (isi di sini)'; // dipakai di template pesan WA admin
+const COMPANY_NAME = 'NAMA PERUSAHAAN (isi di sini)'; // pemilik rekening pembayaran kamar
+
+/* ============ DATA SAMPEL (fiktif, hanya tampil saat APPS_SCRIPT_URL kosong / gagal dimuat) ============ */
+const SV = {
+  sarapan: (p) => ({ id: 'sarapan', name: { id: 'Sarapan lokal', en: 'Local breakfast' }, price: p, unit: 'perGuestPerNight' }),
+  motor: (p) => ({ id: 'motor', name: { id: 'Sewa motor', en: 'Motorbike rental' }, price: p, unit: 'perNight' }),
+  tur: (id, nid, nen, p, unit) => ({ id: id, name: { id: nid, en: nen }, price: p, unit: unit || 'perGuest' })
+};
+const ALL13 = Array(13).fill(true);
+const SAMPLE = [
+  { id: 'H-001', name: 'Omah Pak Slamet', destination: 'Gunung Bromo', city: 'Probolinggo, Jawa Timur', area: 'Ngadisari', price: 100000, capacity: 3,
+    host: 'Pak Slamet & Bu Wati', pic: 'Dewi (PIC Bromo)', moods: ['gunung', 'kopi'], standards: ALL13, verified: '2026-10-12', featured: true, groupFrom: 3, groupPct: 20, terimaBayi: true, lingkungan: 'Ada kebun sayur di belakang rumah, sekitar 20 meter dari kamar tamu.', akses: 'Rumah satu lantai dengan 3 anak tangga di pintu masuk. Parkir motor 30 meter dari rumah.',
+    desc: { id: 'Kamar di rumah keluarga Tengger, 10 menit dari titik sunrise. Setiap tamu disambut teh jahe hangat.', en: 'Room in a Tengger family home, 10 minutes from the sunrise point. Warm ginger tea on arrival.' },
+    services: [SV.sarapan(15000), SV.motor(90000), SV.tur('jeep', 'Jeep sunrise (travel lokal)', 'Sunrise jeep (local operator)', 150000)],
+    ratingHome: 4.8, countHome: 23, ratingHost: 4.9, countHost: 23 },
+  { id: 'H-002', name: 'Rumah Bu Rini', destination: 'Dataran Tinggi Dieng', city: 'Wonosobo, Jawa Tengah', area: 'Dieng Kulon', price: 100000, capacity: 2,
+    host: 'Bu Rini', pic: 'Agus (PIC Dieng)', moods: ['gunung', 'kopi', 'solo'], standards: ALL13, verified: '2026-10-05',
+    desc: { id: 'Rumah kayu yang hangat dekat telaga. Cocok untuk solo traveler: area tamu terpisah dan jam tenang jelas.', en: 'Warm wooden house near the lake. Great for solo travelers: separate guest area and clear quiet hours.' },
+    services: [SV.sarapan(12000), SV.motor(80000), SV.tur('sikunir', 'Tur sunrise Sikunir (travel lokal)', 'Sikunir sunrise tour (local operator)', 60000)],
+    ratingHome: 4.7, countHome: 31, ratingHost: 4.8, countHost: 31 },
+  { id: 'H-003', name: 'Rumah Inaq Sari', destination: 'Sembalun, Rinjani', city: 'Lombok Timur, NTB', area: 'Sembalun Lawang', price: 95000, capacity: 3,
+    host: 'Inaq Sari', pic: 'Rizal (PIC Lombok)', moods: ['gunung'], standards: ALL13, verified: '2026-09-28',
+    desc: { id: 'Jalur pendakian Rinjani cukup ditempuh dengan jalan kaki. Inaq Sari menyiapkan teh dan pisang goreng sebelum trekking.', en: 'The Rinjani trailhead is a short walk away. Inaq Sari prepares tea and fried banana before the trek.' },
+    services: [SV.sarapan(20000), SV.tur('ojek', 'Antar ke pos pendakian', 'Ride to the trailhead', 50000, 'flat'), SV.tur('trek', 'Paket trekking 2H1M (travel lokal)', '2D1N trek package (local operator)', 1350000)],
+    ratingHome: 4.6, countHome: 17, ratingHost: 4.9, countHost: 17 },
+  { id: 'H-004', name: 'Rumah Pak Yosef', destination: 'Labuan Bajo', city: 'Manggarai Barat, NTT', area: 'Wae Kesambi', price: 100000, capacity: 2,
+    host: 'Pak Yosef', pic: 'Maria (PIC Flores)', moods: ['pesisir', 'solo'], standards: ALL13, verified: '2026-10-19',
+    desc: { id: 'Sore hari bisa menikmati kapal-kapal pulang dari teras. 15 menit ke pelabuhan, pas untuk open trip Komodo.', en: 'Watch boats come home from the porch. 15 minutes to the harbour, handy for Komodo open trips.' },
+    services: [SV.sarapan(20000), SV.motor(100000), SV.tur('komodo', 'Open trip pulau 1 hari (travel lokal)', 'One-day island open trip (local operator)', 450000)],
+    ratingHome: 4.5, countHome: 12, ratingHost: 4.7, countHost: 12 },
+  { id: 'H-005', name: 'Rumah Bu Hanifah', destination: 'Karimunjawa', city: 'Jepara, Jawa Tengah', area: 'Pulau Karimunjawa', price: 100000, capacity: 3,
+    host: 'Bu Hanifah', pic: 'Sinta (PIC Jepara)', moods: ['pesisir', 'kopi'], standards: ALL13, verified: '2026-10-02',
+    desc: { id: 'Lima menit jalan kaki ke dermaga. Sarapan ikan bakar dan kopi tubruk tersedia kalau kamu mau.', en: 'Five minutes on foot to the pier. Grilled-fish breakfast and local coffee on request.' },
+    services: [SV.sarapan(20000), SV.motor(100000), SV.tur('hopping', 'Island hopping sharing (travel lokal)', 'Shared island hopping (local operator)', 200000)],
+    ratingHome: 4.7, countHome: 9, ratingHost: 4.8, countHost: 9 },
+  { id: 'H-006', name: 'Rumah Pak Hadi', destination: 'Kawah Ijen', city: 'Banyuwangi, Jawa Timur', area: 'Licin', price: 95000, capacity: 2,
+    host: 'Pak Hadi', pic: 'Eko (PIC Banyuwangi)', moods: ['gunung', 'kopi', 'solo'], standards: ALL13, verified: '2026-10-09',
+    desc: { id: 'Berangkat dini hari ke Ijen langsung dari depan rumah. Kopi Ijen-Raung diseduh sebelum fajar.', en: 'Leave before dawn for Ijen right from the front door. Ijen-Raung coffee brewed at first light.' },
+    services: [SV.sarapan(15000), SV.motor(85000), SV.tur('bluefire', 'Tur blue fire Ijen (travel lokal)', 'Ijen blue fire tour (local operator)', 120000)],
+    ratingHome: 4.4, countHome: 14, ratingHost: 4.6, countHost: 14 },
+  { id: 'H-007', name: 'Rumah Teh Elis', destination: 'Pantai Sawarna', city: 'Lebak, Banten', area: 'Sawarna', price: 90000, capacity: 3,
+    host: 'Teh Elis', pic: 'Rani (PIC Banten)', moods: ['pesisir', 'solo'], standards: ALL13, verified: '2026-09-30',
+    desc: { id: 'Dekat Tanjung Layar dan Pantai Karang Taraje. Rumahnya ramai, tetapi kamar tamu tetap privat.', en: 'Close to Tanjung Layar and Karang Taraje beach. A lively house with a properly private guest room.' },
+    services: [SV.sarapan(15000), SV.motor(85000), SV.tur('goa', 'Tur goa & pantai (travel lokal)', 'Cave & beach tour (local operator)', 70000)],
+    ratingHome: 4.5, countHome: 20, ratingHost: 4.7, countHost: 20 },
+  { id: 'H-008', name: 'Rumah Opung Boru', destination: 'Danau Toba, Samosir', city: 'Samosir, Sumatera Utara', area: 'Tuktuk', price: 95000, capacity: 2,
+    host: 'Opung Boru', pic: 'Hotma (PIC Toba)', moods: ['pesisir', 'kopi', 'solo'], standards: ALL13, verified: '2026-10-14',
+    desc: { id: 'Rumah adat Batak dengan teras menghadap danau. Kopi Sidikalang disajikan di sore hari.', en: 'A Batak house with a lake-facing porch. Sidikalang coffee served in the afternoon.' },
+    services: [SV.sarapan(15000), SV.motor(90000), SV.tur('toba', 'Keliling Samosir (travel lokal)', 'Samosir island tour (local operator)', 90000)],
+    ratingHome: 4.8, countHome: 11, ratingHost: 4.9, countHost: 11 },
+  { id: 'H-009', name: 'Rumah Bu Sri', destination: 'Gunung Bromo', city: 'Probolinggo, Jawa Timur', area: 'Wonokitri', price: 95000, capacity: 2, pi: 1,
+    host: 'Bu Sri', pic: 'Dewi (PIC Bromo)', moods: ['gunung', 'solo'], standards: ALL13, verified: '2026-10-16',
+    desc: { id: 'Kamar tamu terpisah di rumah keluarga, tenang dan hangat. Dari teras terlihat lereng berkabut setiap pagi.', en: 'A separate guest room in a family home, quiet and warm. The terrace looks onto misty slopes each morning.' },
+    services: [SV.sarapan(15000), SV.motor(90000)], ratingHome: 4.6, countHome: 8, ratingHost: 4.8, countHost: 8 },
+  { id: 'H-010', name: 'Rumah Pak Joko', destination: 'Dataran Tinggi Dieng', city: 'Wonosobo, Jawa Tengah', area: 'Dieng Wetan', price: 90000, capacity: 3, pi: 2,
+    host: 'Pak Joko', pic: 'Agus (PIC Dieng)', moods: ['gunung', 'kopi'], standards: ALL13, verified: '2026-10-11',
+    desc: { id: 'Rumah petani kentang dengan perapian di ruang tengah. Kopi dan carica disajikan setiap sore.', en: 'A potato farmer\'s home with a hearth in the living room. Coffee and carica served each afternoon.' },
+    services: [SV.sarapan(12000), SV.motor(80000), SV.tur('candi', 'Keliling kompleks candi (travel lokal)', 'Temple complex tour (local operator)', 50000)], ratingHome: 4.5, countHome: 10, ratingHost: 4.7, countHost: 10 },
+  { id: 'H-011', name: 'Rumah Amaq Dedi', destination: 'Sembalun, Rinjani', city: 'Lombok Timur, NTB', area: 'Sembalun Bumbung', price: 90000, capacity: 3, pi: 1,
+    host: 'Amaq Dedi', pic: 'Rizal (PIC Lombok)', moods: ['gunung', 'solo'], standards: ALL13, verified: '2026-10-03',
+    desc: { id: 'Rumah panggung sederhana di lembah Sembalun. Tuan rumah membantu menyiapkan perbekalan trekking.', en: 'A simple stilt house in the Sembalun valley. The host helps prepare trekking supplies.' },
+    services: [SV.sarapan(20000), SV.tur('ojek', 'Antar ke pos pendakian', 'Ride to the trailhead', 50000, 'flat')], ratingHome: 4.6, countHome: 6, ratingHost: 4.8, countHost: 6 },
+  { id: 'H-012', name: 'Rumah Bu Ratna', destination: 'Karimunjawa', city: 'Jepara, Jawa Tengah', area: 'Kemujan', price: 95000, capacity: 2, pi: 1,
+    host: 'Bu Ratna', pic: 'Sinta (PIC Jepara)', moods: ['pesisir', 'solo'], standards: ALL13, verified: '2026-10-08',
+    desc: { id: 'Rumah sederhana tak jauh dari pantai. Sore hari tuan rumah sering menjemur ikan asin di halaman.', en: 'A simple home not far from the beach. In the afternoon the host dries salted fish in the yard.' },
+    services: [SV.sarapan(20000), SV.motor(100000)], ratingHome: 4.4, countHome: 7, ratingHost: 4.6, countHost: 7 },
+  { id: 'H-013', name: 'Rumah Pak Beni', destination: 'Labuan Bajo', city: 'Manggarai Barat, NTT', area: 'Batu Cermin', price: 95000, capacity: 3, pi: 1,
+    host: 'Pak Beni', pic: 'Maria (PIC Flores)', moods: ['pesisir', 'kopi'], standards: ALL13, verified: '2026-10-17',
+    desc: { id: 'Dekat Gua Batu Cermin. Kopi Flores diseduh pagi hari, dan tuan rumah paham jadwal kapal ke pulau.', en: 'Close to Batu Cermin cave. Flores coffee brewed in the morning, and the host knows the island boat schedule.' },
+    services: [SV.sarapan(20000), SV.motor(100000)], ratingHome: 4.5, countHome: 9, ratingHost: 4.6, countHost: 9 },
+  { id: 'H-014', name: 'Rumah Opung Sitorus', destination: 'Danau Toba, Samosir', city: 'Samosir, Sumatera Utara', area: 'Ambarita', price: 90000, capacity: 3, pi: 1,
+    host: 'Opung Sitorus', pic: 'Hotma (PIC Toba)', moods: ['pesisir', 'kopi'], standards: ALL13, verified: '2026-10-13',
+    desc: { id: 'Rumah keluarga dengan halaman luas dan pohon jeruk. Sore hari bisa duduk di teras sambil melihat danau.', en: 'A family home with a wide yard and orange trees. Sit on the porch in the afternoon and watch the lake.' },
+    services: [SV.sarapan(15000), SV.motor(90000)], ratingHome: 4.7, countHome: 13, ratingHost: 4.8, countHost: 13 },
+  { id: 'H-015', name: 'Rumah Mbak Ayu', destination: 'Pantai Sawarna', city: 'Lebak, Banten', area: 'Sawarna Timur', price: 85000, capacity: 2, pi: 2,
+    host: 'Mbak Ayu', pic: 'Rani (PIC Banten)', moods: ['pesisir', 'solo'], standards: ALL13, verified: '2026-10-01',
+    desc: { id: 'Rumah kecil yang bersih dekat jalur ke pantai. Cocok untuk yang suka suasana pedesaan dan suara ombak.', en: 'A small, clean house near the path to the beach. Great for rural calm and the sound of waves.' },
+    services: [SV.sarapan(15000), SV.motor(85000)], ratingHome: 4.4, countHome: 5, ratingHost: 4.6, countHost: 5 },
+  { id: 'H-016', name: 'Rumah Pak Imam', destination: 'Kawah Ijen', city: 'Banyuwangi, Jawa Timur', area: 'Licin', price: 90000, capacity: 3, pi: 1,
+    host: 'Pak Imam', pic: 'Eko (PIC Banyuwangi)', moods: ['gunung', 'kopi'], standards: ALL13, verified: '2026-10-10',
+    desc: { id: 'Rumah di lereng kebun kopi. Berangkat dini hari ke Ijen bisa dibantu tuan rumah, termasuk perbekalan hangat.', en: 'A home on a coffee-farm slope. The host can help with the pre-dawn Ijen departure, including a warm snack.' },
+    services: [SV.sarapan(15000), SV.motor(85000)], ratingHome: 4.5, countHome: 8, ratingHost: 4.6, countHost: 8 }
+];
+const SEED_BOOKINGS = [
+  { booking_code: 'BN-261101-DEMO', homestay_id: 'H-001', homestay_name: 'Omah Pak Slamet', destination: 'Gunung Bromo', guest_name: 'Raka (contoh)', guest_wa: '6281200001111', checkin: '2026-12-05', nights: 2, guests: 2, room_total: 480000, addon_estimate: 60000, addons: ['sarapan'], status: 'LUNAS', pic_name: 'Dewi (PIC Bromo)', pic_wa: '6281200000002', host_name: 'Pak Slamet & Bu Wati', host_wa: '6281200000001', forwarded_pic: false, forwarded_host: false, review_done: false }
+];
+
+const DIST = {
+  'Gunung Bromo': ['±10 menit berkendara ke titik sunrise', '±10 minutes by bike to the sunrise point'],
+  'Dataran Tinggi Dieng': ['±15 menit ke Telaga Warna dan Candi Arjuna', '±15 minutes to Telaga Warna and Arjuna Temple'],
+  'Sembalun, Rinjani': ['Jalan kaki ke pos pendakian Sembalun', 'Walk to the Sembalun trailhead'],
+  'Labuan Bajo': ['±15 menit ke pelabuhan Labuan Bajo', '±15 minutes to Labuan Bajo harbour'],
+  'Karimunjawa': ['±5 menit jalan kaki ke dermaga', '±5 minutes on foot to the pier'],
+  'Kawah Ijen': ['±30 menit berkendara ke Paltuding (pos pendakian)', '±30 minutes by bike to Paltuding trailhead'],
+  'Pantai Sawarna': ['±10 menit ke Tanjung Layar', '±10 minutes to Tanjung Layar'],
+  'Danau Toba, Samosir': ['Tepi danau, jalan kaki ke dermaga Tuktuk', 'Lakeside, walk to Tuktuk pier']
+};
+const SAMPLE_RULES = { id: ['Jam tenang 22.00–05.00', 'Lepas alas kaki di dalam rumah', 'Beri tahu pemilik jika pulang lewat tengah malam'], en: ['Quiet hours 22:00–05:00', 'Remove shoes indoors', 'Tell the host if returning after midnight'] };
+SAMPLE.forEach((h) => { h.peakPrice = Math.min(MAX_PEAK_PRICE, h.price + 30000); h.checkinTime = '14:00'; h.checkoutTime = '11:00'; h.distance = { id: (DIST[h.destination] || ['', ''])[0], en: (DIST[h.destination] || ['', ''])[1] }; h.rules = SAMPLE_RULES; h.photos = []; });
+const UNS = (id, w) => 'https://images.unsplash.com/photo-' + id + '?auto=format&fit=crop&w=' + w + '&q=70';
+const DEST_PHOTOS = {
+  bromo: ['1556019947-8695cb3d4e81', '1602154663343-89fe0bf541ab', '1518043610038-064362b44076', '1556549957-f41c6fcc4210'],
+  dieng: ['1724667523248-cb55bf707427', '1768271179744-e22d1ab84be5', '1724667523167-893f9f6f92f6', '1724667523239-b2011d2756da'],
+  rinjani: ['1746964246729-3bcad599e959', '1698267703889-06c41f9acba5', '1654046920188-6e7ee051d7a4'],
+  karimun: ['1724121169456-ad3f513693fa', '1619017107453-3d950380f0a9', '1639560950924-f84e3d3270c1'],
+  ijen: ['1603725616907-82eb483d7dea', '1603718989452-e832af5e2b1e'],
+  bajo: ['1643044034131-001b53336bd0', '1619880889144-d6e252999afa', '1623916729476-03c4eda4ce2b', '1678449722615-80036bf6e762'],
+  toba: ['1516132006923-6cf348e5dee2', '1601058497548-f247dfe349d6', '1623598122059-9b5ef17619c8', '1642762205001-aada86f9dbe2'],
+  sawarna: ['1696173654894-6e32d69a67d3', '1696085709531-81fba5dbcffd', '1696174303774-fa674e9c5771', '1696174721139-5053c6e0e4ab']
+};
+// Foto suasana rumah untuk galeri contoh (rumah desa, kamar, sarapan)
+const EXTRA_PHOTOS = { house: ['1593857389276-7c794900c90f', '1643216365771-e4af0eb705d8', '1657340835640-8cd097332129'], room: ['1794413636795-ac99edf8e80c', '1771207918220-2b297e290f5d', '1766431066492-9bec8410a57b', '1793839172095-a8e533e81a54', '1767348922722-fae8bf7fc9d9', '1765547090903-348b711f0eee'], food: ['1653177606650-c435e039c676', '1653291340079-67789fe1d6e3'] };
+function destIds(d) { const k = String(d || '').toLowerCase(); const key = Object.keys(DEST_PHOTOS).filter((x) => k.indexOf(x) >= 0)[0]; return key ? DEST_PHOTOS[key] : []; }
+SAMPLE.forEach((h, n) => {
+  const ids = destIds(h.destination), k = ids.length ? (h.pi || 0) % ids.length : 0, ord = ids.slice(k).concat(ids.slice(0, k));
+  const all = ord.concat([EXTRA_PHOTOS.house[n % 3], EXTRA_PHOTOS.room[n % 6], EXTRA_PHOTOS.food[n % 2]]);
+  h.photo = all[0] ? UNS(all[0], 900) : ''; h.photos = all.map((i) => UNS(i, 900));
+});
+const SAMPLE_SEASONS = [{ from: '2026-12-24', to: '2027-01-03', label: 'Libur Natal & Tahun Baru' }];
+const SAMPLE_BLOCKS = { 'H-001': [['2026-12-10', '2026-12-12']], 'H-004': [['2026-12-24', '2026-12-31']] };
+
+/* ============ I18N ============ */
+const T = {
+  id: {
+    navReview: 'Tulis ulasan', navDispatch: 'Admin',
+    heroKicker: 'Rumah warga · Dekat wisata alam', heroTitle: 'Nginep di rumah warga. Paginya, alam sudah di depan pintu.',
+    heroSub: 'Kamu tidur di rumah keluarga setempat, dekat wisata alam yang mau kamu datangi. Harga kamar ada di tiap rumah, layanan tambahan bayar langsung ke tuan rumah.',
+    searchLabel: 'Cari', searchPh: 'Cari destinasi, kota, atau nama rumah', priceMax: 'Budget maksimal per malam', countLabel: 'rumah tersedia',
+    mAll: 'Semua', mGunung: 'Gunung', mPesisir: 'Pantai & danau', mAir: 'Air terjun & air panas', mKopi: 'Sarapan & kopi lokal', mSolo: 'Solo traveler',
+    footReg: 'Daftarkan rumahmu', openWA: 'Buka WhatsApp', payLeft: 'Sisa waktu transfer: {m} menit', payExpired: 'Batas waktu transfer habis. Kirim booking lagi kalau masih ingin menginap.', err_pending_exists: 'Kamu masih punya booking yang menunggu pembayaran. Selesaikan transfernya atau tunggu 60 menit.', err_too_many_pending: 'Rumah ini sedang banyak booking yang menunggu pembayaran. Coba lagi sebentar lagi.', err_server: 'Server sedang bermasalah. Coba lagi sebentar lagi.', dpRecheck: 'Rumah ini sedang dicek ulang sesuai standar bolehnginep terbaru.', dpEnv: 'Lingkungan sekitar', dpAccess: 'Akses & kenyamanan', bayiLbl: 'Bayi (di bawah 2 tahun, gratis)', discLine: 'Diskon rombongan: hemat {a}', groupHint: 'Mulai tamu ke-{f}, tarif per tamu hemat {p}%.', stPay: 'Nominal transfer: {a} (sudah termasuk kode unik {k}).', stHold: 'Sisa waktu pembayaran: {m} menit.', stHoldOver: 'Batas waktu pembayaran sudah lewat. Hubungi admin kalau kamu sudah transfer.', bookedPay: 'Permintaan booking terkirim. Kode: {c}. Lanjutkan lewat WhatsApp: admin akan mengirim nominal, rekening, dan cara pembayarannya.', rgEnv: 'Lingkungan sekitar (mis. ada kebun atau ternak di dekat rumah, tulis apa adanya)', err_amount_mismatch: 'Nominal tidak sama dengan yang diterbitkan. Periksa jumlah yang diterima.', err_dates_taken: 'Tanggal sudah diambil booking lain. Batalkan dengan refund 100%.', footRules: 'Aturan & standar', footAdmin: 'Admin',
+    footStatus: 'Cek booking', footComplaint: 'Lapor masalah', footTerms: 'Syarat & privasi', ruTabPay: 'Bayar', ruTabTerms: 'Syarat', ruTabPriv: 'Privasi', ruTerms: 'Syarat & ketentuan', rulePrivacy: 'Kebijakan privasi', draftNote: 'Ini masih draf. Wajib dicek konsultan hukum sebelum rilis.',
+    consentTxt: 'Aku setuju dengan {terms} dan {privacy}, dan nama + nomor WA-ku boleh dipakai untuk booking ini.', consentTermsLbl: 'Syarat & ketentuan', consentPrivLbl: 'Kebijakan privasi', errConsent: 'Centang persetujuan dulu ya.',
+    dpLocation: 'Lokasi & jarak', dpMap: 'Buka di peta', dpTimes: 'Check-in {i} · Check-out {o}', dpRules: 'Aturan rumah', dpReviews: 'Ulasan tamu', dpNoReviews: 'Belum ada ulasan.', hostReply: 'Balasan tuan rumah',
+    calTitle: 'Kalender', calFull: 'Penuh', calPeak: 'Musim ramai', calPick: 'Pilih tanggal check-in di kalender.', errBlocked: 'Tanggal {d} sudah penuh. Coba tanggal lain ya.', peakNote: '{n} malam jatuh di musim ramai ({l}), tarifnya sudah dihitung.',
+    stTitle: 'Cek booking', stIntro: 'Masukkan kode booking dan 4 digit terakhir nomor WA untuk melihat status atau membatalkan booking.', stCheck: 'Cek status', stCancel: 'Batalkan booking', stConfirm: 'Ya, batalkan',
+    stRefundPct: 'Kalau dibatalkan sekarang, refund {p}% ({a}).', stUnpaid: 'Belum dibayar, jadi bisa dibatalkan gratis.', stNoRefund: 'Kalau dibatalkan sekarang, tidak ada refund (sudah hari check-in).',
+    stCancelled: 'Booking dibatalkan. Refund: {a}. Admin akan menghubungi kamu lewat WA untuk mengembalikan dana.', stCancelledFree: 'Booking dibatalkan, tanpa biaya.', stReviewHint: 'Setelah menginap, tulis ulasan lewat menu Tulis ulasan di bawah.', stRoom: 'Total kamar', stDates: 'Check-in', stRefundNow: 'Refund', stRefundStatus: 'Status refund',
+    stSt_MENUNGGU_PEMBAYARAN: 'Menunggu pembayaran', stSt_LUNAS: 'Lunas', stSt_SELESAI: 'Selesai', stSt_BATAL: 'Dibatalkan',
+    cpTitle: 'Lapor masalah', cpIntro: 'Ada yang tidak beres selama menginap? Ceritakan di sini, kami bantu sampai beres.', cpCat: 'Jenis masalah', cpDesc: 'Ceritakan masalahnya (minimal 10 karakter)', cpSubmit: 'Kirim laporan', cpOk: 'Laporan terkirim. Admin akan menghubungi kamu.', cpErr: 'Isi kode booking, 4 digit WA, dan ceritanya (minimal 10 karakter).',
+    cat_kebersihan: 'Kebersihan', cat_keamanan: 'Keamanan', cat_tagihan_di_luar_rate_card: 'Tagihan di luar daftar harga', cat_perilaku_pemilik_pic: 'Sikap tuan rumah atau pendamping', cat_lainnya: 'Lainnya',
+    err_consent_required: 'Centang persetujuan dulu ya.', err_dates_unavailable: 'Tanggal itu baru saja dipesan tamu lain. Coba pilih tanggal lain.', err_dates_taken: 'Tanggal ini sudah diambil booking lain. Cek booking yang bentrok dulu.', err_rate_limited: 'Terlalu banyak percobaan. Coba lagi sebentar lagi.', err_too_many_attempts: 'Terlalu banyak kesalahan input. Coba lagi dalam 1 jam.', err_locked: 'Akses dikunci sementara karena PIN salah berkali-kali. Coba lagi dalam 15 menit.', err_spam: 'Permintaan tidak bisa diproses. Muat ulang halaman, lalu coba lagi.', err_not_cancellable: 'Booking ini tidak bisa dibatalkan.', err_invalid_price: 'Tarif tidak valid. Periksa batas tarif yang berlaku.',
+    dpcTabBook: 'Booking', dpcTabReview: 'Ulasan', rvAdmHide: 'Sembunyikan', rvAdmShow: 'Tampilkan', rvAdmReply: 'Balasan host', rvAdmSave: 'Simpan balasan', rvAdmNone: 'Belum ada ulasan.', rvAdmHidden: 'disembunyikan',
+    rgPeak: 'Tarif musim ramai per tamu per malam (opsional, maks Rp130.000)',
+    polTitle: 'Bayar & pembatalan', polPay: 'Tarif kamar hanya dibayar ke rekening perusahaan ({co}). Kami tidak pernah meminta transfer ke rekening pribadi.', polHold: 'Nominal transfer berlaku 60 menit sejak diterbitkan. Lewat dari itu, tanggal dibuka lagi untuk tamu lain.', polFree: 'Batal paling lambat H-3 check-in: refund 100%.', polHalf: 'Batal H-2 sampai H-1: refund 50%.', polNone: 'Batal di hari check-in atau tidak datang: tidak ada refund.', polCount: 'Hitungannya pakai tanggal, bukan jam. Contoh: check-in 29 Nov, batal sampai 26 Nov masih refund 100%.', polForce: 'Kejadian di luar kendali (erupsi, cuaca ekstrem, jalur ditutup): jadwal ulang atau refund 100%.', polCode: 'Transfer harus sesuai nominal tepat, termasuk 3 digit kode unik di belakangnya, supaya pembayaranmu bisa kami kenali.', polBase: 'Refund dihitung dari jumlah yang kamu transfer, dibulatkan ke atas ke rupiah penuh.', polHost: 'Kalau tuan rumah yang membatalkan: refund 100%, dan kami bantu cari rumah pengganti.',
+    reqNote: 'Setelah booking terkirim, kamu mendapat nominal transfer yang berlaku 60 menit.',
+    ruGuest: 'Tamu', ruHost: 'Tuan rumah', rulePic: 'Pendamping', ruSystem: 'Sistem & bayar',
+    rgIntro: 'Semua pemilik rumah boleh mendaftar. Setelah itu pendamping lokal menghubungimu untuk memeriksa rumahmu sebelum tayang.', rgHost: 'Nama pemilik rumah', rgWA: 'Nomor WhatsApp', rgName: 'Nama rumah', rgDest: 'Destinasi terdekat (misal: Gunung Bromo)', rgCity: 'Kota, Provinsi (misal: Probolinggo, Jawa Timur)', rgArea: 'Desa / area', rgPrice: 'Tarif per tamu per malam (maks Rp100.000)', rgCap: 'Kapasitas tamu', rgDesc: 'Ceritakan singkat tentang rumah dan suasananya', rgRef: 'Dikenalkan oleh pendamping (opsional)', rgAgree: 'Aku siap memenuhi standar bolehnginep, batas tarif yang berlaku, aturan, dan kode etik tuan rumah.', rgSubmit: 'Kirim pendaftaran', rgErr: 'Lengkapi semua kolom wajib dan centang persetujuan. Periksa juga batas tarif.', rgOk: 'Pendaftaran terkirim. Pendamping lokal akan menghubungimu lewat WA.', err_duplicate: 'Rumah ini sudah pernah didaftarkan.',
+    fltDate: 'Tanggal check-in', fltNights: 'Malam', fltSort: 'Urutkan', sortRec: 'Terbaik', sortPrice: 'Termurah', sortRating: 'Rating tertinggi', availFor: '✓ Kosong {d} · {n} malam', fltNone: 'Tidak ada rumah kosong di tanggal itu. Coba tanggal lain atau hapus filter tanggal.', howLink: 'Cara kerjanya gimana? ›', footHow: 'Cara kerja', howTitle: 'Cara kerja & nginep live-in', howStepsH: '4 langkah booking', howExpectH: 'Seperti apa nginep live-in', howGuaranteeH: 'Yang kami jaga', howFaqH: 'Sering ditanyain', howRulesBtn: 'Lihat standar & aturan lengkap', shareBtn: 'Bagikan', shareCopied: 'Link rumah disalin', shareText: '{n} di {d}, mulai {p} per tamu per malam',
+    footPartner: 'Portal mitra', admTabPay: 'Payout', admTabHomes: 'Rumah & PIN', admTabAvail: 'Ketersediaan', err_has_booking: 'Ada booking aktif di tanggal itu, jadi tidak bisa diblokir.', err_invalid_date: 'Tanggalnya tidak valid.', err_evidence_required: 'Kalau lolos, wajib melampirkan link foto bukti (https).', err_not_found: 'Data tidak ditemukan.', err_invalid_pin: 'PIN harus 6 digit angka.', err_invalid_transition: 'Perubahan status ini tidak diizinkan.', err_standards_not_passed: 'Rumah belum memenuhi standar.', areaTitle: 'Jelajahi per destinasi', areaAll: 'Semua destinasi', areaCount: '{n} rumah', areaFrom: 'mulai {p}', seeAll: 'Lihat semua', homesIn: 'Rumah di {a}', homesAll: 'Pilihan rumah', areaChip: 'Destinasi: {a}', homesInSub: '{p} · {n} rumah',
+    catTitle: 'Pilihan rumah', emptyTitle: 'Belum ada rumah yang cocok.', emptySub: 'Coba naikkan batas harga atau ganti suasana.', reset: 'Reset filter',
+    footAbout: 'Nginep di rumah warga dekat wisata alam Indonesia. Tiap rumah harus sesuai standar sebelum tayang.',
+    demoNote: 'Mode demo: ini data contoh.', loadFail: 'Data gagal dimuat. Muat ulang halaman sebentar lagi, atau chat admin langsung.', loadStale: 'Sedang offline. Yang tampil adalah data tersimpan, jadi ketersediaan tanggal mungkin belum terbaru.',
+    spot: 'Pilihan unggulan', perNight: '/tamu/malam', host: 'Tuan rumah', pic: 'Pendamping', badge: 'Sesuai standar', rHome: 'Rating rumah', rHost: 'Rating tuan rumah & pendamping',
+    noRating: 'Belum ada', detail: 'Lihat detail', openDetail: 'Lihat detail', moreSvc: '+{n} layanan lagi', upTo: 'Maks {n} tamu', close: 'Tutup',
+    flowTitle: 'Bayarnya gimana? Jelas dari awal', flowRoomTag: 'Kamar: bayar ke rekening perusahaan', flowRoomDesc: 'Tarif kamar dibayar ke rekening perusahaan lewat chat admin bolehnginep, sesuai nominal yang diberikan.',
+    flowAddonTag: 'Tambahan: bayar langsung ke tuan rumah', flowAddonDesc: 'Sarapan, sewa motor, dan tur lokal dibayar langsung ke tuan rumah di lokasi, sesuai daftar harga.',
+    flowNote: 'Semua harga terlihat sebelum kamu booking.',
+    dpAbout: 'Tentang rumah ini', dpPeople: 'Tuan rumah & pendamping', dpStd: 'Standar bolehnginep', dpStdSub: 'Ketuk tiap standar untuk melihat cara pengecekannya.', dpVerified: 'Sesuai standar bolehnginep, dicek {d}.',
+    dpVerify: 'Cara pendamping memeriksa', dpArrive: 'Cek saat tiba', dpRate: 'Daftar harga layanan tambahan', dpRateSub: 'Dibayar langsung ke tuan rumah, bukan lewat admin.',
+    dpRatings: 'Rating terpisah', dpCalc: 'Atur rencana nginepmu', dpCheckin: 'Tanggal check-in', dpNights: 'Jumlah malam', dpGuests: 'Jumlah tamu', dpCheckout: 'Check-out: {d}',
+    dpPickSvc: 'Simulasi layanan tambahan', dpSplit: 'Rincian pembayaran', payWA: 'Bayar ke admin', payWAsub: 'Total tarif kamar', payHost: 'Bayar langsung ke tuan rumah di lokasi', payHostSub: 'Estimasi tambahan (sesuai daftar harga)',
+    dpGuestForm: 'Data tamu', fName: 'Nama lengkap', fWA: 'Nomor WhatsApp', fNote: 'Catatan (opsional)', fNotePh: 'Misal: tiba malam, alergi tertentu, dll.', errName: 'Isi nama lengkap (minimal 2 huruf).', errWA: 'Nomor WA tidak valid (contoh: 0812…).', errDate: 'Pilih tanggal check-in mulai hari ini.',
+    btnBook: 'Booking lewat chat admin', btnCopy: 'Salin format pesan', footRoom: 'Bayar ke admin', footAddon: '+ estimasi di lokasi',
+    notice: 'Tarif kamar hanya dibayar ke rekening perusahaan. Jangan transfer ke tuan rumah.', booked: 'Permintaan booking terkirim. Kode: {c}. Simpan kode ini untuk menulis ulasan.', bookedWA: 'Pesan disalin dan WhatsApp terbuka. Kode booking: {c}',
+    copied: 'Format pesan disalin ✓', copyFail: 'Gagal menyalin otomatis. Tahan teksnya lalu salin manual.', saveFail: 'Data belum masuk ke server, nanti dicoba lagi otomatis.', booking: 'Mengamankan tanggalmu…', saveDemo: 'Mode demo: booking disimpan di perangkat ini.', codeChanged: 'Kode booking disesuaikan server: {c}',
+    unitGN: 'per orang per malam', unitN: 'per malam', unitG: 'per orang', unitF: 'sekali bayar',
+    rvTitle: 'Tulis ulasan', rvIntro: 'Masukkan kode booking dan 4 digit terakhir nomor WA yang dipakai booking. Satu booking untuk satu ulasan.', rvCode: 'Kode booking', rvLast4: '4 digit terakhir WA',
+    rvHome: '1 · Rumah yang kamu tempati', rvHost: '2 · Tuan rumah & pendamping', rvTextPh: 'Gimana kamarnya, kebersihannya, suasananya?', rvTextPh2: 'Bagaimana keramahan, respons, dan bantuan pendampingnya?', rvSubmit: 'Kirim ulasan',
+    rvErrCode: 'Isi kode booking dan 4 digit terakhir WA.', rvErrStar: 'Beri bintang untuk rumah DAN untuk tuan rumah & pendamping.', rvOk: 'Makasih! Ulasanmu sudah masuk ke rating.', rvDemoHint: 'Mode demo: coba kode BN-261101-DEMO dengan 4 digit 1111, atau kode booking yang kamu bikin di perangkat ini.',
+    err_booking_not_found: 'Kode booking dan 4 digit WA tidak cocok.', err_already_reviewed: 'Booking ini sudah pernah diulas.', err_booking_not_confirmed: 'Booking ini belum lunas. Ulasan bisa ditulis setelah kamu menginap.', err_unauthorized: 'PIN salah.', err_generic: 'Ada kendala. Coba lagi sebentar ya.', err_invalid_nights: 'Maksimal menginap 5 malam per booking. Untuk lebih lama, pesan lagi setelah masa menginap pertama.', err_invalid_guests: 'Jumlah tamu tidak sesuai kapasitas rumah ini.', err_invalid_name: 'Nama belum terisi dengan benar.', err_invalid_wa: 'Nomor WhatsApp belum benar. Contoh: 0812xxxxxxx.', err_invalid_checkin: 'Tanggal check-in tidak valid. Pilih tanggal hari ini atau setelahnya.', err_home_closed: 'Rumah ini sedang tutup sementara. Coba rumah lain atau tanggal lain.', err_homestay_not_active: 'Rumah ini belum menerima booking.',
+    dpcTitle: 'Admin: kirim ke PIC & host', dpcPin: 'PIN admin', dpcOpen: 'Buka panel', dpcPick: 'Pilih booking', dpcRefresh: 'Muat ulang', dpcNone: 'Belum ada booking.', dpcPIC: 'Pesan buat PIC', dpcHost: 'Pesan buat host', dpcCopy: 'Salin', dpcWA: 'Buka WA', dpcMark: 'Tandai terkirim', dpcMarked: 'Sudah ditandai terkirim ✓', dpcStatus: 'Status', dpcSent: 'terkirim'
+  },
+};
+if (WA_DARURAT) T.id.cpIntro += ' Kondisi darurat (sakit parah, kecelakaan, ancaman keselamatan)? Hubungi nomor darurat bolehnginep +' + WA_DARURAT + ' (24 jam).';
+const STD = {
+  id: [
+    { g: 'Kamar', t: 'Kunci kamar aman dari dalam dan luar', v: 'Pendamping mencoba kunci dari dua sisi sebelum rumah diaktifkan.', a: 'Minta kunci cadangan, lalu coba kunci dari dalam sebelum menaruh tas.' },
+    { g: 'Kamar', t: 'Kamar mandi bersih, air lancar', v: 'Pendamping memeriksa kebersihan, keran, dan kloset saat survei.', a: 'Coba keran dan siram kloset. Ada kendala? Kabari pendamping.' },
+    { g: 'Kamar', t: 'Kasur layak, seprai dan sarung bantal diganti untuk setiap tamu baru', v: 'Tuan rumah berkomitmen mengganti linen, pendamping memeriksa kondisi kasurnya.', a: 'Pastikan linen terasa bersih dan kering. Minta ganti kalau ragu.' },
+    { g: 'Kamar', t: 'Colokan listrik hidup dan lampu cukup terang', v: 'Pendamping mencoba colokan dan lampu di kamar tamu.', a: 'Cek colokan untuk power bank dan lampu baca.' },
+    { g: 'Privasi & keselamatan', t: 'Batas privasi jelas antara tamu dan keluarga tuan rumah', v: 'Area tamu dan area keluarga disepakati bersama tuan rumah.', a: 'Tanya area bersama dan jam tenang saat tiba.' },
+    { g: 'Tuan rumah', t: 'Daftar harga layanan tambahan jelas', v: 'Harga layanan tambahan ditampilkan di halaman ini, tuan rumah tidak boleh menarik biaya di luar daftar harga.', a: 'Cocokkan tagihan di lokasi dengan daftar harga di halaman ini.' },
+    { g: 'Kebersihan & lingkungan', t: 'Tidak ada bau menyengat di dalam rumah dan sekitar kamar', v: 'Pendamping memeriksa kamar, dapur, dan halaman saat survei.', a: 'Kabari pendamping kalau ada bau yang mengganggu.' },
+    { g: 'Kebersihan & lingkungan', t: 'Tidak ada kandang atau tempat ternak yang menempel di bangunan kamar', v: 'Pendamping memeriksa jarak kandang dari kamar. Kebun dan ternak yang berada jauh dari kamar dicantumkan di Lingkungan sekitar.', a: 'Baca Lingkungan sekitar di halaman ini supaya tidak kaget.' },
+    { g: 'Kebersihan & lingkungan', t: 'Ruang bersama, dapur, dan halaman terjaga bersih', v: 'Pendamping memeriksa kebersihan area yang dipakai tamu.', a: 'Kabari pendamping kalau ada area yang kurang bersih.' },
+    { g: 'Tuan rumah', t: 'Tuan rumah menjaga kebersihan diri dan dapur saat menyiapkan makanan', v: 'Pendamping mengamati kebersihan dan kebiasaan di dapur saat survei. Tidak ada pemeriksaan data kesehatan pribadi.', a: 'Kabari pendamping kalau ada yang membuatmu tidak nyaman soal kebersihan.' },
+    { g: 'Tuan rumah', t: 'Tuan rumah ramah, sopan, dan menaati kode etik tuan rumah', v: 'Tuan rumah menyetujui kode etik saat mendaftar, pendamping menilai sikapnya saat bertemu.', a: 'Ada sikap yang tidak pantas? Laporkan lewat Lapor masalah.' },
+    { g: 'Kamar', t: 'Jumlah kasur sesuai kapasitas yang tertera', v: 'Pendamping menghitung kasur yang benar-benar ada, bukan perkiraan.', a: 'Cocokkan jumlah kasur dengan jumlah rombonganmu.' },
+    { g: 'Privasi & keselamatan', t: 'Jalur keluar aman dan penerangan malam memadai', v: 'Pendamping memeriksa pintu keluar dan lampu jalur menuju kamar.', a: 'Bawa senter kecil untuk jalan di area gelap.' }
+  ],
+};const MOODS = ['all', 'gunung', 'pesisir', 'air', 'kopi', 'solo'];
+const MOOD_KEY = { all: 'mAll', gunung: 'mGunung', pesisir: 'mPesisir', air: 'mAir', kopi: 'mKopi', solo: 'mSolo' };
+
+/* ============ UTIL ============ */
+const $ = (s, r) => (r || document).querySelector(s);
+const $$ = (s, r) => Array.from((r || document).querySelectorAll(s));
+const store = {
+  get(k, d) { try { const v = localStorage.getItem(k); return v ? JSON.parse(v) : d; } catch (e) { return d; } },
+  set(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) {} }
+};
+const esc = (s) => String(s == null ? '' : s).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+const rp = (n) => 'Rp ' + Math.round(n).toLocaleString('id-ID');
+const fmtDate = (iso, lang) => { try { const [y, m, d] = iso.split('-').map(Number); return new Date(y, m - 1, d).toLocaleDateString(lang === 'id' ? 'id-ID' : 'en-GB', { weekday: 'short', day: 'numeric', month: 'short', year: 'numeric' }); } catch (e) { return iso; } };
+const pad = (n) => String(n).padStart(2, '0');
+const monthYear = (iso) => { try { const [y, m] = String(iso).split('-').map(Number); return new Date(y, m - 1, 1).toLocaleDateString('id-ID', { month: 'long', year: 'numeric' }); } catch (e) { return iso; } };
+const todayISO = () => { const d = new Date(); return d.getFullYear() + '-' + pad(d.getMonth() + 1) + '-' + pad(d.getDate()); };
+const addDays = (iso, n) => { const [y, m, d] = iso.split('-').map(Number); const dt = new Date(y, m - 1, d + n); return dt.getFullYear() + '-' + pad(dt.getMonth() + 1) + '-' + pad(dt.getDate()); };
+const normPhone = (v) => { let d = String(v || '').replace(/\D/g, ''); if (d.indexOf('0') === 0) d = '62' + d.slice(1); return d; };
+const validPhone = (v) => /^62\d{8,13}$/.test(normPhone(v));
+const waLink = (num, msg) => 'https://wa.me/' + normPhone(num) + '?text=' + encodeURIComponent(msg);
+const svcQty = (s, n, g) => s.unit === 'perGuestPerNight' ? n * g : s.unit === 'perNight' ? n : s.unit === 'perGuest' ? g : 1;
+const newCode = () => {
+  const A = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789'; let s = '';
+  const buf = new Uint32Array(4);
+  try { crypto.getRandomValues(buf); } catch (e) { for (let i = 0; i < 4; i++) buf[i] = Math.floor(Math.random() * 4294967295); }
+  for (let i = 0; i < 4; i++) s += A.charAt(buf[i] % A.length);
+  const d = new Date();
+  return 'BN-' + String(d.getFullYear()).slice(2) + pad(d.getMonth() + 1) + pad(d.getDate()) + '-' + s;
+};
+
+/* ============ STATE ============ */
+const S = {
+  lang: 'id',
+  homes: [], seasons: [], blocks: {}, cal: null, openedAt: 0, regOpenedAt: 0, demo: !APPS_SCRIPT_URL, loadFailed: false,
+  q: '', mood: 'all', area: 'all', maxPrice: 0, priceCeil: 0, fDate: '', fNights: 2, sort: 'rec',
+  cur: null, nights: 2, guests: 1, bayi: 0, pay: null, addons: {}, form: { name: '', wa: '', note: '', checkin: '', consent: false },
+  stars: { home: 0, host: 0 }, layers: [], lastFocus: null, booking: false,
+  admin: { pin: '', bookings: [], sel: '' }
+};
+const t = (k, v) => { let s = (T[S.lang] && T[S.lang][k]) || T.id[k] || k; if (v) Object.keys(v).forEach((x) => { s = s.replace('{' + x + '}', v[x]); }); return s; };
+const loc = (o) => (o && typeof o === 'object') ? (o[S.lang] || o.id || '') : (o || '');
+
+/* ============ API ============ */
+let inflight = 0;
+function netStart() { inflight++; const b = document.getElementById('netBar'); if (b) b.hidden = false; }
+function netEnd() { inflight = Math.max(0, inflight - 1); if (!inflight) { const b = document.getElementById('netBar'); if (b) b.hidden = true; document.querySelectorAll('.btn-wait').forEach((x) => x.classList.remove('btn-wait')); } }
+// Umpan balik instan: tombol yang diklik langsung menampilkan putaran sampai permintaan jaringan selesai
+document.addEventListener('click', (e) => {
+  const b = e.target.closest && e.target.closest('button, a.btn, summary, [role="tab"], [role="switch"]'); if (!b || b.disabled) return;
+  b.classList.add('btn-wait'); setTimeout(() => { if (!inflight) b.classList.remove('btn-wait'); }, 400); setTimeout(() => b.classList.remove('btn-wait'), 25000);
+}, true);
+async function apiGet(params) {
+  const ctl = new AbortController(); const to = setTimeout(() => ctl.abort(), 15000);
+  netStart();
+  try { const r = await fetch(APPS_SCRIPT_URL + '?' + new URLSearchParams(params), { signal: ctl.signal }); return await r.json(); } finally { clearTimeout(to); netEnd(); }
+}
+async function apiPost(payload, keepalive) {
+  const ctl = new AbortController(); const to = setTimeout(() => ctl.abort(), 20000);
+  netStart();
+  try {
+    // Sengaja TANPA header Content-Type → "simple request", aman dari preflight/CORS Apps Script.
+    const r = await fetch(APPS_SCRIPT_URL, { method: 'POST', body: JSON.stringify(payload), signal: ctl.signal, keepalive: !!keepalive });
+    return await r.json();
+  } finally { clearTimeout(to); netEnd(); }
+}
+function normHome(h) {
+  return {
+    id: String(h.id), name: h.name || '', destination: h.destination || '', city: h.city || '', area: h.area || '', price: Number(h.price) || 0, capacity: Math.max(1, Number(h.capacity) || 1),
+    host: h.host || '', pic: h.pic || '', moods: Array.isArray(h.moods) ? h.moods : [], standards: Array.isArray(h.standards) && h.standards.length >= 6 ? h.standards.concat(Array(Math.max(0, 13 - h.standards.length)).fill(false)).slice(0, 13) : ALL13, recheck: !!h.recheck || (Array.isArray(h.standards) && h.standards.length === 6), lingkungan: h.lingkungan || '', akses: h.akses || '', terimaBayi: !!h.terimaBayi, groupFrom: Math.max(2, Number(h.groupFrom) || 3), groupPct: Math.max(0, Math.min(30, Number(h.groupPct) || 0)), verified: h.verified || '',
+    desc: h.desc || { id: '', en: '' }, services: Array.isArray(h.services) ? h.services : [], photo: h.photo || (destIds(h.destination)[0] ? UNS(destIds(h.destination)[0], 900) : ''), featured: !!h.featured, closed: h.open === false,
+    ratingHome: Number(h.ratingHome) || 0, countHome: Number(h.countHome) || 0, ratingHost: Number(h.ratingHost) || 0, countHost: Number(h.countHost) || 0,
+    peakPrice: Number(h.peakPrice) || 0, photos: Array.isArray(h.photos) && h.photos.length ? h.photos : destIds(h.destination).map((i) => UNS(i, 900)), mapUrl: h.mapUrl || '', distance: h.distance || { id: '', en: '' },
+    checkinTime: h.checkinTime || '', checkoutTime: h.checkoutTime || '', rules: h.rules || { id: [], en: [] }
+  };
+}
+async function loadHomes() {
+  let list = null;
+  if (APPS_SCRIPT_URL) {
+    try { const r = await apiGet({ action: 'homestays' }); if (r && r.ok && Array.isArray(r.homestays)) { list = r.homestays; S.seasons = r.seasons || []; S.blocks = r.blocks || {}; S.noSamples = r.samples === false; store.set('bn_cat', { at: Date.now(), r: { homestays: r.homestays, seasons: r.seasons || [], blocks: r.blocks || {}, samples: r.samples } }); } } catch (e) {}
+    if (!list) {   // backend tidak terjangkau: pakai katalog tersimpan (maks 7 hari) supaya tamu tetap bisa melihat rumah dan menghubungi admin
+      const c = store.get('bn_cat', null);
+      if (c && c.r && Array.isArray(c.r.homestays) && Date.now() - c.at < 7 * 86400000) { list = c.r.homestays; S.seasons = c.r.seasons || []; S.blocks = c.r.blocks || {}; S.noSamples = c.r.samples === false; S.staleCat = true; }
+      S.loadFailed = true; toast(t(S.staleCat ? 'loadStale' : 'loadFail'));
+    }
+  }
+  S.demo = !list;
+  if (!list) { S.seasons = SAMPLE_SEASONS; S.blocks = SAMPLE_BLOCKS; }
+  S.homes = (list || SAMPLE).map(normHome);
+  if (!S.demo && SHOW_SAMPLES && !S.noSamples && S.homes.filter((h) => !h.sample).length < 8) {
+    const have = {}; S.homes.forEach((h) => { have[h.id] = 1; });
+    S.homes = S.homes.concat(SAMPLE.filter((h) => !have[h.id]).map((h) => Object.assign(normHome(h), { sample: true, featured: false })));
+  }
+  S.priceCeil = Math.max(100000, Math.ceil(Math.max.apply(null, S.homes.map((h) => h.price).concat([100000])) / 5000) * 5000);
+  S.maxPrice = S.priceCeil;
+  const pr = $('#price'); pr.min = Math.max(0, Math.floor(Math.min.apply(null, S.homes.map((h) => h.price).concat([S.priceCeil])) / 5000) * 5000 - 5000); pr.max = S.priceCeil; pr.value = S.priceCeil;
+}
+function applyUrlArea() {
+  try {
+    const sp = new URLSearchParams(location.search); const q = sp.get('area') || sp.get('d'); if (!q) return;
+    const slug = (x) => String(x).toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
+    const g = S.homes.filter((h) => slug(h.destination) === slug(q))[0]; if (g) S.area = g.destination;
+  } catch (e) {}
+}
+
+/* ============ FOTO (fallback: gradien polos bila foto gagal dimuat) ============ */
+let artN = 0;
+const szImg = (u, w) => /images\.unsplash\.com/.test(u) ? u.replace(/([?&])w=\d+/, '$1w=' + w).replace(/q=\d+/, 'q=60') : u;
+document.addEventListener('error', (e) => { const el = e.target; if (el && el.tagName === 'IMG' && el.closest('[data-hasimg], .relative')) el.remove(); }, true);
+function art(h, cls, w, eager) {
+  const src = /^https:\/\//i.test(h.photo || '') ? szImg(h.photo, w || 640) : '';
+  return '<div class="relative overflow-hidden bg-gradient-to-br from-forest to-[#33513f] ' + (cls || '') + '">' + (src ? '<img src="' + esc(src) + '" alt="' + esc(h.name) + '" ' + (eager ? 'fetchpriority="high"' : 'loading="lazy"') + ' decoding="async" class="absolute inset-0 w-full h-full object-cover">' : '') + '</div>';
+}
+const star = '<svg class="w-4 h-4 text-terra inline -mt-0.5" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2l2.9 6.6 7.1.6-5.4 4.7 1.7 7-6.3-3.8-6.3 3.8 1.7-7L2 9.2l7.1-.6z"/></svg>';
+const check = '<svg class="w-4 h-4 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12l5 5L20 7"/></svg>';
+const ratingTxt = (r, c) => c > 0 ? (star + ' <b>' + r.toFixed(1) + '</b> <span class="text-ink/55">(' + c + ')</span>') : '<span class="text-ink/50 text-sm">' + esc(t('noRating')) + '</span>';
+const unitLbl = (u) => t(u === 'perGuestPerNight' ? 'unitGN' : u === 'perNight' ? 'unitN' : u === 'perGuest' ? 'unitG' : 'unitF');
+
+/* ============ RENDER: STATIC / FILTERS / CATALOG ============ */
+function applyI18n() {
+  document.documentElement.lang = S.lang;
+  $$('[data-i18n]').forEach((el) => { el.textContent = t(el.getAttribute('data-i18n')); });
+  $$('[data-i18n-ph]').forEach((el) => { el.placeholder = t(el.getAttribute('data-i18n-ph')); });
+  document.title = S.lang === 'id' ? 'bolehnginep — Nginep di rumah warga dekat alam Indonesia' : 'bolehnginep — Stay in local homes near Indonesia\'s nature';
+  const dn = $('#demoNote'); if (S.demo) { dn.textContent = S.loadFailed ? t(S.staleCat ? 'loadStale' : 'loadFail') : t('demoNote'); dn.classList.remove('hidden'); } else dn.classList.add('hidden');
+  $('#rvDemoHint').textContent = t('rvDemoHint'); $('#rvDemoHint').classList.toggle('hidden', !S.demo);
+}
+function renderPills() {
+  $('#pills').innerHTML = MOODS.map((m) => {
+    const on = S.mood === m;
+    return '<button type="button" data-mood="' + m + '" aria-pressed="' + on + '" class="shrink-0 min-h-[44px] px-4 rounded-full text-sm font-semibold border-[1.5px] transition-colors ' + (on ? 'bg-forest text-white border-forest' : 'bg-white text-forest border-forest/25 hover:border-forest') + '">' + esc(t(MOOD_KEY[m])) + '</button>';
+  }).join('');
+}
+function freeFor(h, date, n) { const r = S.blocks[h.id] || []; for (let i = 0; i < n; i++) { const d = addDays(date, i); if (r.some((x) => d >= x[0] && d <= x[1])) return false; } return true; }
+function sortList(list) {
+  const a = list.slice();
+  if (S.sort === 'price') a.sort((x, y) => x.price - y.price);
+  else if (S.sort === 'rating') a.sort((x, y) => (y.countHome > 0 ? y.ratingHome : 0) - (x.countHome > 0 ? x.ratingHome : 0) || y.countHome - x.countHome);
+  return a;
+}
+function renderFilterOpts() {
+  const ns = $('#fltNights'), sb = $('#sortBy'); if (!ns || !sb) return;
+  ns.innerHTML = [1, 2, 3, 4, 5].map((n) => '<option value="' + n + '"' + (S.fNights === n ? ' selected' : '') + '>' + n + '</option>').join('');
+  sb.innerHTML = [['rec', 'sortRec'], ['price', 'sortPrice'], ['rating', 'sortRating']].map((x) => '<option value="' + x[0] + '"' + (S.sort === x[0] ? ' selected' : '') + '>' + esc(t(x[1])) + '</option>').join('');
+}
+function filtered(skipArea) {
+  const q = S.q.trim().toLowerCase();
+  return S.homes.filter((h) => {
+    if (h.price > S.maxPrice) return false;
+    if (S.fDate && !freeFor(h, S.fDate, S.fNights)) return false;
+    if (!skipArea && S.area !== 'all' && h.destination !== S.area) return false;
+    if (S.mood !== 'all' && h.moods.indexOf(S.mood) < 0) return false;
+    if (!q) return true;
+    const hay = [h.name, h.destination, h.city, h.area, h.host, h.pic].concat(h.services.map((s) => loc(s.name))).concat(h.moods.map((m) => t(MOOD_KEY[m]))).join(' ').toLowerCase();
+    return q.split(/\s+/).every((w) => hay.indexOf(w) >= 0);
+  });
+}
+function availOf(h) {
+  if (h.closed) return { free: 0, k: 'closed' };
+  const r = S.blocks[h.id] || [], t0 = todayISO(); let free = 0;
+  for (let i = 0; i < 30; i++) { const d = addDays(t0, i); if (!r.some((x) => d >= x[0] && d <= x[1])) free++; }
+  return { free: free, k: free === 0 ? 'full' : free <= 10 ? 'few' : 'ok' };
+}
+function availBadge(h) {
+  if (h.sample) return '';
+  const a = availOf(h), L = { closed: ['Tutup sementara', 'bg-forest text-white'], ok: ['Tersedia', 'bg-white text-leaf'], few: ['Terbatas', 'bg-white text-terra'], full: ['Penuh 30 hari ke depan', 'bg-forest text-white'] }[a.k];
+  return '<span class="absolute top-3 right-3 rounded-full text-[11px] font-bold px-2.5 py-1 shadow ' + L[1] + '">' + L[0] + '</span>';
+}
+const NODES = new Map();
+function cachedEl(key, html) {
+  let el = NODES.get(key);
+  if (!el) { if (NODES.size > 300) NODES.clear(); const d = document.createElement('div'); d.innerHTML = html; el = d.firstElementChild; NODES.set(key, el); }
+  return el;
+}
+function cardEl(h) { const a = h.sample ? { k: '', free: 0 } : availOf(h); return cachedEl(['c', h.id, h.name, h.price, h.photo, h.ratingHome, h.countHome, S.lang, S.fDate, S.fNights, a.k, a.free].join('|'), cardHTML(h)); }
+function cardHTML(h) {
+  const rate = h.countHome > 0 ? star + ' <b>' + h.ratingHome.toFixed(1) + '</b> <span class="text-ink/55">(' + h.countHome + ')</span>' : '<span class="text-ink/50">' + esc(t('noRating')) + '</span>';
+  const cheap = h.services.slice(0, 2).map((x) => esc(loc(x.name))).join(' · ');
+  return '<article class="card-lift bg-white rounded-3xl overflow-hidden border border-black/5 flex flex-col min-w-0">' +
+    '<' + (h.sample ? 'div' : 'button type="button" data-open="' + esc(h.id) + '" aria-label="' + esc(t('detail')) + ': ' + esc(h.name) + '"') + ' class="block text-left"><div class="relative">' + art(h, 'aspect-[4/3]', 640) + '<span class="absolute top-3 left-3 inline-flex items-center gap-1 rounded-full bg-white text-leaf text-[11px] font-bold px-2.5 py-1 shadow">' + check + esc(h.sample ? 'Contoh' : t('badge')) + '</span>' + availBadge(h) + '</div></' + (h.sample ? 'div' : 'button') + '>' +
+    '<div class="p-4 flex flex-col gap-1.5 flex-1 min-w-0">' +
+      '<div class="flex items-start justify-between gap-2"><h3 class="font-display text-lg leading-snug break-words min-w-0">' + esc(h.name) + '</h3><span class="shrink-0 text-sm">' + rate + '</span></div>' +
+      '<p class="text-sm text-ink/60 truncate">' + esc(h.destination) + ' · ' + esc(h.area) + '</p>' +
+      (S.fDate ? '<p class="text-xs font-bold text-leaf">' + esc(t('availFor', { d: fmtDate(S.fDate, S.lang), n: S.fNights })) + '</p>' : '') +
+      (cheap ? '<p class="text-xs text-ink/55 truncate">' + cheap + '</p>' : '') +
+      '<div class="mt-auto pt-2 flex items-end justify-between gap-2"><p><span class="font-display text-xl text-forest">' + rp(h.price) + '</span> <span class="text-xs text-ink/55">' + esc(t('perNight')) + '</span></p>' + (h.sample ? '<span class="btn bg-cream text-ink/55 !min-h-[40px] !px-4 text-sm cursor-default whitespace-nowrap text-center justify-center">Segera hadir</span>' : '<button type="button" data-open="' + esc(h.id) + '" class="btn btn-primary !min-h-[40px] !px-4 text-sm">' + esc(t('detail')) + '</button>') + '</div>' +
+    '</div></article>';
+}
+function groupBy(list) {
+  const m = {}; const order = [];
+  list.forEach((h) => { if (!m[h.destination]) { m[h.destination] = []; order.push(h.destination); } m[h.destination].push(h); });
+  return order.map((k) => ({ name: k, homes: m[k], min: Math.min.apply(null, m[k].map((x) => x.price)), prov: (m[k][0].city.split(',').pop() || '').trim() }));
+}
+function renderAreas() {
+  const base = filtered(true); const groups = groupBy(base);
+  if (S.area !== 'all' && !groups.some((g) => g.name === S.area)) S.area = 'all';
+  const allOn = S.area === 'all';
+  const tile = 'snap-start shrink-0 w-40 sm:w-48 lg:w-auto text-left';
+  const all = '<button type="button" data-area="__all" aria-pressed="' + allOn + '" class="' + tile + ' lg:hidden"><div class="aspect-[4/3] rounded-2xl bg-leaf text-white flex flex-col items-center justify-center ' + (allOn ? 'ring-4 ring-leaf' : '') + '"><span class="font-display text-4xl font-bold">' + base.length + '</span><span class="text-xs text-white/75">' + esc(t('countLabel')) + '</span></div><p class="mt-2 font-semibold text-forest text-sm leading-tight">' + esc(t('areaAll')) + '</p><p class="text-xs text-ink/55">' + groups.length + ' ' + (S.lang === 'id' ? 'destinasi' : 'destinations') + '</p></button>';
+  const tiles = groups.map((g) => {
+    const on = S.area === g.name;
+    return cachedEl(['a', g.name, on, g.homes.length, g.min, g.homes[0].photo, S.lang, g.homes.every((x) => x.sample)].join('|'), '<button type="button" data-area="' + esc(g.name) + '" aria-pressed="' + on + '" class="' + tile + '">' + art(g.homes[0], 'aspect-[4/3] rounded-2xl ' + (on ? 'ring-4 ring-leaf' : ''), 420) +
+      '<p class="mt-2 font-semibold text-forest text-sm leading-tight">' + esc(g.name) + '</p><p class="text-xs text-ink/55 truncate">' + esc(g.prov) + ' · ' + (g.homes.every((x) => x.sample) ? 'Segera hadir' : esc(t('areaCount', { n: g.homes.filter((x) => !x.sample).length }))) + '</p><p class="text-xs text-leaf font-bold">' + esc(t('areaFrom', { p: rp(g.min) })) + '</p></button>');
+  });
+  const hold = document.createElement('div'); hold.innerHTML = all;
+  $('#areas').replaceChildren.apply($('#areas'), [hold.firstElementChild].concat(tiles));
+}
+function renderCatalog() {
+  renderAreas();
+  const list = sortList(filtered());
+  const browse = S.area === 'all' && !S.q.trim() && S.mood === 'all' && S.maxPrice >= S.priceCeil;
+  $('#count').textContent = list.length;
+  $('#priceOut').textContent = rp(S.maxPrice);
+  $('#catTitle').textContent = S.area === 'all' ? t('homesAll') : t('homesIn', { a: S.area });
+  const bar = $('#areaBar');
+  if (S.area !== 'all') { bar.classList.remove('hidden'); bar.innerHTML = '<button type="button" data-area="__all" class="btn btn-ghost !min-h-[40px] text-sm">‹ ' + esc(t('areaAll')) + '</button><span class="inline-flex items-center rounded-full bg-terra/10 text-terra text-sm font-semibold px-3 py-2">' + esc(t('areaChip', { a: S.area })) + '</span>'; } else { bar.classList.add('hidden'); bar.innerHTML = ''; }
+  if (browse) {
+    $('#grid').classList.remove('hidden'); $('#grid').replaceChildren.apply($('#grid'), list.map(cardEl));
+    $('#rows').innerHTML = '';
+  } else {
+    $('#rows').innerHTML = ''; $('#grid').classList.remove('hidden');
+    $('#grid').replaceChildren.apply($('#grid'), list.map(cardEl));
+  }
+  $('#empty').classList.toggle('hidden', list.length > 0); $('#emptyDate').classList.toggle('hidden', !S.fDate);
+}
+function renderBento() {
+  const hp = $('#heroPhotos'); if (hp) { const seen = {}; const pick = S.homes.filter((h) => h.photo && !seen[h.destination] && (seen[h.destination] = 1)).slice(2, 3); hp.innerHTML = pick.map((h) => art(h, 'h-full w-full', 1400, true)).join(''); }
+  const real = S.homes.filter((h) => !h.sample); const f = real.filter((h) => h.featured)[0] || real[0] || S.homes[0];
+  $('#spotlight').innerHTML = f ? '<article class="h-full bg-white rounded-3xl overflow-hidden border border-black/5 grid sm:grid-cols-5 min-w-0">' +
+    art(Object.assign({}, f, { photo: (f.photos && f.photos[1]) || f.photo }), 'sm:col-span-2 h-44 sm:h-auto sm:min-h-[16rem]', 700) +
+    '<div class="sm:col-span-3 p-5 sm:p-6 flex flex-col justify-center gap-3 min-w-0"><p class="text-leaf text-xs font-bold">' + esc(t('spot')) + ' · ' + esc(f.destination) + '</p>' +
+    '<h2 class="font-display text-2xl sm:text-3xl text-forest leading-tight">' + esc(f.name) + '</h2>' +
+    '<p class="text-ink/75 max-w-prose">' + esc(loc(f.desc)) + '</p>' +
+    '<div class="flex flex-wrap items-center gap-x-4 gap-y-1 text-sm"><span class="font-display text-xl text-forest">' + rp(f.price) + ' <span class="font-sans text-sm font-normal text-ink/60">' + esc(t('perNight')) + '</span></span><span>' + ratingTxt(f.ratingHome, f.countHome) + '</span></div>' +
+    '<button type="button" data-open="' + esc(f.id) + '" class="btn btn-terra mt-1 self-start">' + esc(t('openDetail')) + '</button></div></article>' : '';
+  $('#flow').innerHTML = '<div class="h-full rounded-3xl bg-white border border-black/5 p-5 sm:p-6 flex flex-col gap-3"><h2 class="font-display text-xl sm:text-2xl text-forest">' + esc(t('flowTitle')) + '</h2>' +
+    '<div class="rounded-2xl bg-leaf text-white p-4"><p class="font-bold text-sm">' + esc(t('flowRoomTag')) + '</p><p class="text-sm mt-1 text-white/85">' + esc(t('flowRoomDesc')) + '</p></div>' +
+    '<div class="rounded-2xl bg-cream p-4"><p class="font-bold text-sm text-forest">' + esc(t('flowAddonTag')) + '</p><p class="text-sm mt-1 text-ink/80">' + esc(t('flowAddonDesc')) + '</p></div>' +
+    '<p class="text-sm text-ink/60 mt-auto">' + esc(t('flowNote')) + '</p></div>';
+}
+function renderAll() { applyI18n(); renderFilterOpts(); renderPills(); renderBento(); renderCatalog(); if (isOpen('howModal')) renderHow(); if (S.cur && isOpen('detailPanel')) renderPanel(); if (isOpen('dispatchModal') && window.__BN && window.__BN.renderDispatch) window.__BN.renderDispatch(); if (isOpen('rulesModal')) renderRules(); if (isOpen('regModal')) renderReg(); }
+
+/* ============ LAYERS (panel / modal) ============ */
+const isOpen = (id) => S.layers.indexOf(id) >= 0;
+function openLayer(id) {
+  if (isOpen(id)) return;
+  S.lastFocus = document.activeElement;
+  S.layers.push(id);
+  const el = $('#' + id); S.zTop = (S.zTop || 50) + 1; if (S.zTop > 66) { S.zTop = 50; S.layers.forEach((l) => { S.zTop++; $('#' + l).style.zIndex = String(S.zTop); }); } el.style.zIndex = String(S.zTop); el.setAttribute('data-open', 'true'); $('#backdrop').setAttribute('data-open', 'true');   // lapisan yang dibuka belakangan selalu di atas
+  document.body.style.overflow = 'hidden';
+  setTimeout(() => { const f = el.querySelector('button[aria-label],input,button'); if (f) f.focus({ preventScroll: true }); }, 60);
+}
+function closeLayer(id) {
+  const i = S.layers.indexOf(id); if (i < 0) return;
+  S.layers.splice(i, 1);
+  if (id === 'detailPanel') setUrlHome(null);
+  $('#' + id).setAttribute('data-open', 'false'); $('#' + id).style.zIndex = '';
+  if (!S.layers.length) { S.zTop = 50; $('#backdrop').setAttribute('data-open', 'false'); document.body.style.overflow = ''; }
+  if (S.lastFocus && S.lastFocus.focus) try { S.lastFocus.focus({ preventScroll: true }); } catch (e) {}
+}
+const closeTop = () => { if (S.layers.length) closeLayer(S.layers[S.layers.length - 1]); };
+document.addEventListener('keydown', (e) => {
+  if (e.key === 'Escape') closeTop();
+  if (e.key === 'Tab' && S.layers.length) {
+    const el = $('#' + S.layers[S.layers.length - 1]);
+    const f = $$('button:not([disabled]),input:not([disabled]),textarea,select,summary,a[href]', el).filter((x) => x.offsetParent !== null);
+    if (!f.length) return; const a = f[0], b = f[f.length - 1];
+    if (e.shiftKey && document.activeElement === a) { e.preventDefault(); b.focus(); } else if (!e.shiftKey && document.activeElement === b) { e.preventDefault(); a.focus(); }
+  }
+});
+document.addEventListener('focusin', (e) => { // jaga input tetap terlihat saat keyboard mobile muncul
+  if (S.layers.length && /^(INPUT|TEXTAREA)$/.test(e.target.tagName)) setTimeout(() => { try { e.target.scrollIntoView({ block: 'center', behavior: 'smooth' }); } catch (x) {} }, 280);
+});
+$('#backdrop').addEventListener('click', closeTop);
+
+/* ============ TOAST ============ */
+let toastT;
+function toast(msg) {
+  const el = $('#toast'); el.textContent = msg; el.setAttribute('data-show', 'true');
+  clearTimeout(toastT); toastT = setTimeout(() => el.setAttribute('data-show', 'false'), 3800);
+}
+
+/* ============ COPY ============ */
+function copySync(text) {
+  try {
+    const ta = document.createElement('textarea'); ta.value = text; ta.setAttribute('readonly', '');
+    ta.style.cssText = 'position:fixed;top:0;left:0;width:1px;height:1px;opacity:0;font-size:16px';
+    document.body.appendChild(ta); ta.focus({ preventScroll: true }); ta.select(); ta.setSelectionRange(0, text.length);
+    const ok = document.execCommand('copy'); ta.remove(); if (ok) return true;
+  } catch (e) {}
+  try { if (navigator.clipboard && window.isSecureContext) { navigator.clipboard.writeText(text).catch(() => {}); return true; } } catch (e) {}
+  return false;
+}
+
+/* ============ DETAIL PANEL ============ */
+const peakAt = (iso) => S.seasons.filter((x) => iso >= x.from && iso <= x.to)[0] || null;
+const nightPrice = (h, iso) => (h.peakPrice > 0 && peakAt(iso)) ? h.peakPrice : h.price;
+function stayNights() { if (!S.form.checkin) return []; const o = []; for (let i = 0; i < S.nights; i++) o.push(addDays(S.form.checkin, i)); return o; }
+function blockedNight(h) { if (h.closed) return stayNights()[0] || todayISO(); const r = S.blocks[h.id] || []; return stayNights().filter((d) => r.some((x) => d >= x[0] && d <= x[1]))[0] || null; }
+function calc() {
+  const h = S.cur; if (!h) return { room: 0, addon: 0, lines: [], perGuest: 0, peakNights: 0, peakLabel: '', disc: 0 };
+  const nl = stayNights(); let per = 0, pk = 0, label = '', disc = 0;
+  const gp = h.groupPct || 0, ex = gp > 0 ? Math.max(0, S.guests - (h.groupFrom || 3) + 1) : 0;
+  const rates = nl.length ? nl.map((d) => { const pa = (h.peakPrice > 0) ? peakAt(d) : null; if (pa) { pk++; label = pa.label || label; } return pa ? h.peakPrice : h.price; }) : Array(S.nights).fill(h.price);
+  rates.forEach((r) => { per += r; disc += Math.round(r * gp / 100) * ex; });
+  const room = per * S.guests - disc;
+  let addon = 0; const lines = [];
+  h.services.forEach((s) => { if (S.addons[s.id]) { const q = svcQty(s, S.nights, S.guests); const sub = s.price * q; addon += sub; lines.push({ s: s, q: q, sub: sub }); } });
+  return { room: room, addon: addon, lines: lines, perGuest: per, peakNights: pk, peakLabel: label, disc: disc };
+}
+function openDetail(id) {
+  const h = S.homes.filter((x) => x.id === id)[0]; if (!h || h.sample) return;
+  clearInterval(S.cdTimer); S.cur = h; S.code = ''; S.pay = null; S.nights = 2; S.guests = 1; S.bayi = 0; S.addons = {}; S.openedAt = Date.now(); S.cal = null;
+  if (S.fDate) { S.form.checkin = S.fDate; S.nights = S.fNights; }
+  $('#dpShare').setAttribute('aria-label', t('shareBtn')); setUrlHome(h.id);
+  track('view_home', { home: h.id });
+  renderPanel(); openLayer('detailPanel'); loadReviews(h.id);
+  $('#dpBody').scrollTop = 0;
+}
+function renderPanel() {
+  const h = S.cur; if (!h) return;
+  $('#dpDest').textContent = h.destination + ' · ' + h.area; $('#dpTitle').textContent = h.name;
+  $('#dpClose').setAttribute('aria-label', t('close'));
+  const std = STD[S.lang];
+  const stdHTML = std.map((s, i) => '<details class="rounded-2xl border border-black/10 bg-white"><summary class="flex items-center gap-3 p-3 min-h-[44px]"><span class="w-6 h-6 rounded-full flex items-center justify-center shrink-0 ' + (h.standards[i] ? 'bg-forest text-white' : 'bg-black/10 text-ink/40') + '">' + (h.standards[i] ? check : '') + '</span><span class="text-sm font-semibold flex-1">' + esc(s.t) + (s.g ? '<span class="block text-[11px] font-normal text-ink/50">' + esc(s.g) + '</span>' : '') + '</span><svg class="chev w-4 h-4 transition-transform shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M6 9l6 6 6-6"/></svg></summary><div class="px-3 pb-3 pl-12 text-sm text-ink/75 space-y-1.5"><p><b class="text-forest">' + esc(t('dpVerify')) + ':</b> ' + esc(s.v) + '</p><p><b class="text-terra">' + esc(t('dpArrive')) + ':</b> ' + esc(s.a) + '</p></div></details>').join('');
+  const rate = h.services.map((s) => '<li class="flex items-start justify-between gap-3 py-2.5 border-b border-black/5 last:border-0"><span class="text-sm min-w-0">' + esc(loc(s.name)) + '<br><span class="text-xs text-ink/55">' + esc(unitLbl(s.unit)) + '</span></span><b class="text-sm whitespace-nowrap">' + rp(s.price) + '</b></li>').join('');
+  const svcPick = h.services.map((s) => '<label class="flex items-center gap-3 rounded-2xl border border-black/10 bg-white p-3 min-h-[52px] cursor-pointer"><input type="checkbox" data-svc="' + esc(s.id) + '" class="w-5 h-5 accent-[#B4472A] shrink-0"' + (S.addons[s.id] ? ' checked' : '') + '><span class="flex-1 min-w-0 text-sm font-medium">' + esc(loc(s.name)) + '<br><span class="text-xs text-ink/55 font-normal">' + rp(s.price) + ' ' + esc(unitLbl(s.unit)) + '</span></span><span data-line="' + esc(s.id) + '" class="text-sm font-bold text-terra whitespace-nowrap"></span></label>').join('');
+  $('#dpBody').innerHTML =
+    '<div class="lg:max-w-6xl lg:mx-auto lg:grid lg:grid-cols-12 lg:gap-10 lg:px-8 lg:py-8 min-w-0">' +
+    '<div class="p-5 lg:p-0 lg:col-span-7 space-y-6 min-w-0">' + gallery(h) +
+      '<section><h3 class="font-display text-lg font-bold text-forest">' + esc(t('dpAbout')) + '</h3><p class="mt-1 text-ink/80 max-w-prose">' + esc(loc(h.desc)) + '</p><p class="mt-2 text-sm text-ink/60">' + esc(t('upTo', { n: h.capacity })) + '</p></section>' +
+      (h.recheck ? '<p class="rounded-xl bg-cream p-3 text-sm">' + esc(t('dpRecheck')) + '</p>' : '') +
+      (h.lingkungan ? '<section><h3 class="font-display text-lg font-bold text-forest">' + esc(t('dpEnv')) + '</h3><p class="mt-1 text-ink/80 max-w-prose">' + esc(h.lingkungan) + '</p></section>' : '') +
+      (h.akses ? '<section><h3 class="font-display text-lg font-bold text-forest">' + esc(t('dpAccess')) + '</h3><p class="mt-1 text-ink/80 max-w-prose">' + esc(h.akses) + '</p></section>' : '') +
+      locationHTML(h) +
+      '<section><h3 class="font-display text-lg font-bold text-forest">' + esc(t('dpPeople')) + '</h3><div class="mt-2 grid grid-cols-1 min-[420px]:grid-cols-2 gap-2 text-sm"><div class="rounded-2xl bg-cream p-3"><p class="text-xs uppercase font-semibold text-ink/55">' + esc(t('host')) + '</p><p class="font-semibold">' + esc(h.host) + '</p></div><div class="rounded-2xl bg-cream p-3"><p class="text-xs uppercase font-semibold text-ink/55">' + esc(t('pic')) + '</p><p class="font-semibold">' + esc(h.pic) + '</p></div></div></section>' +
+      '<section><h3 class="font-display text-lg font-bold text-forest">' + esc(t('dpRatings')) + '</h3><div class="mt-2 grid grid-cols-1 min-[420px]:grid-cols-2 gap-2 text-sm"><div class="rounded-2xl bg-cream p-3"><p class="text-xs uppercase font-semibold text-ink/55">' + esc(t('rHome')) + '</p><p class="mt-0.5">' + ratingTxt(h.ratingHome, h.countHome) + '</p></div><div class="rounded-2xl bg-cream p-3"><p class="text-xs uppercase font-semibold text-ink/55">' + esc(t('rHost')) + '</p><p class="mt-0.5">' + ratingTxt(h.ratingHost, h.countHost) + '</p></div></div></section>' +
+      '<section><h3 class="font-display text-lg font-bold text-forest">' + esc(t('dpStd')) + '</h3><p class="text-sm text-ink/60 mb-2">' + esc(t('dpStdSub')) + (h.verified ? ' ' + esc(t('dpVerified', { d: monthYear(h.verified) })) : '') + '</p><div class="space-y-2">' + stdHTML + '</div></section>' +
+      '<section><h3 class="font-display text-lg font-bold text-forest">' + esc(t('dpRate')) + '</h3><p class="text-sm text-ink/60">' + esc(t('dpRateSub')) + '</p><ul class="mt-1">' + (rate || '') + '</ul></section>' +
+      '<section><h3 class="font-display text-lg font-bold text-forest">' + esc(t('dpReviews')) + '</h3><div id="dpRevList" class="mt-2 space-y-3"><p class="text-sm text-ink/55">…</p></div></section>' +
+    '</div>' +
+    '<div class="p-5 lg:p-6 lg:col-span-5 space-y-5 bg-cream/70 lg:bg-white lg:border lg:border-black/10 lg:rounded-3xl lg:shadow-[0_16px_48px_-20px_rgba(23,32,27,.3)] lg:sticky lg:top-6 lg:self-start lg:max-h-[calc(100dvh-10rem)] lg:overflow-y-auto min-w-0">' +
+      '<section><h3 class="font-display text-lg font-bold text-forest">' + esc(t('dpCalc')) + '</h3>' +
+        '<div class="mt-3 space-y-3">' +
+          '<div><p class="text-sm font-semibold">' + esc(t('dpCheckin')) + '</p><input id="fCheckin" type="hidden" value="' + esc(S.form.checkin) + '"><p id="ciShow" class="text-sm text-ink/70 mt-0.5"></p><div id="calGrid" class="mt-2 rounded-2xl border border-black/10 bg-white p-3"></div><p id="eDate" class="text-xs text-terra font-semibold mt-1 min-h-[1rem]"></p></div>' +
+          '<div class="grid grid-cols-1 min-[420px]:grid-cols-2 gap-3">' +
+            '<div><p class="text-sm font-semibold">' + esc(t('dpNights')) + '</p><div class="flex items-center gap-3 mt-1"><button type="button" class="stepbtn" data-act="n-" aria-label="−">−</button><output id="oN" class="min-w-[2.5rem] text-center text-xl font-bold" aria-live="polite"></output><button type="button" class="stepbtn" data-act="n+" aria-label="+">+</button></div></div>' +
+            '<div><p class="text-sm font-semibold">' + esc(t('dpGuests')) + '</p><div class="flex items-center gap-3 mt-1"><button type="button" class="stepbtn" data-act="g-" aria-label="−">−</button><output id="oG" class="min-w-[2.5rem] text-center text-xl font-bold" aria-live="polite"></output><button type="button" class="stepbtn" data-act="g+" aria-label="+">+</button></div></div>' +
+            (h.terimaBayi ? '<div><p class="text-sm font-semibold">' + esc(t('bayiLbl')) + '</p><div class="flex items-center gap-3 mt-1"><button type="button" class="stepbtn" data-act="b-" aria-label="−">−</button><output id="oB" class="min-w-[2.5rem] text-center text-xl font-bold" aria-live="polite"></output><button type="button" class="stepbtn" data-act="b+" aria-label="+">+</button></div></div>' : '') +
+          '</div><p id="oOut" class="text-xs text-ink/60"></p><p id="oPeak" class="text-xs text-terra font-semibold"></p><p id="oDisc" class="text-xs text-forest font-semibold"></p><p id="eAvail" class="text-xs text-terra font-semibold" role="alert"></p></div></section>' +
+      (h.services.length ? '<section><h3 class="font-display text-lg font-bold text-forest">' + esc(t('dpPickSvc')) + '</h3><div class="mt-2 space-y-2">' + svcPick + '</div></section>' : '') +
+      '<section><h3 class="font-display text-lg font-bold text-forest">' + esc(t('dpSplit')) + '</h3><div class="mt-2 space-y-2">' +
+        '<div class="rounded-2xl bg-forest text-white p-4"><p class="text-sm font-bold text-[#cfe3d6]">' + esc(t('payWA')) + '</p><p class="text-sm text-white/80">' + esc(t('payWAsub')) + '</p><p id="boxRoom" class="font-display text-3xl font-bold mt-1"></p></div>' +
+        '<div class="rounded-2xl border border-black/10 bg-white p-4"><p class="text-sm font-bold text-forest">' + esc(t('payHost')) + '</p><p class="text-sm text-ink/70">' + esc(t('payHostSub')) + '</p><p id="boxAddon" class="font-display text-3xl font-bold text-terra mt-1"></p></div></div>' +
+        '<p class="mt-2 text-xs text-ink/65">' + esc(t('notice')) + '</p></section>' +
+      '<section><h3 class="font-display text-lg font-bold text-forest">' + esc(t('dpGuestForm')) + '</h3><div class="mt-2 space-y-3">' +
+        '<div><label for="fName" class="text-sm font-semibold">' + esc(t('fName')) + '</label><input id="fName" class="field" autocomplete="name" value="' + esc(S.form.name) + '"><p id="eName" class="text-xs text-terra font-semibold mt-1 min-h-[1rem]"></p></div>' +
+        '<div><label for="fWA" class="text-sm font-semibold">' + esc(t('fWA')) + '</label><input id="fWA" class="field" type="tel" inputmode="tel" autocomplete="tel" placeholder="0812xxxxxxxx" value="' + esc(S.form.wa) + '"><p id="eWA" class="text-xs text-terra font-semibold mt-1 min-h-[1rem]"></p></div>' +
+        '<div><label for="fNote" class="text-sm font-semibold">' + esc(t('fNote')) + '</label><textarea id="fNote" rows="2" maxlength="300" class="field" placeholder="' + esc(t('fNotePh')) + '">' + esc(S.form.note) + '</textarea></div></div></section>' +
+      '<label class="flex items-start gap-3 text-sm"><input id="fConsent" type="checkbox" class="w-5 h-5 mt-0.5 accent-[#B4472A] shrink-0"' + (S.form.consent ? ' checked' : '') + '><span>' + consentHTML() + '</span></label><p id="eConsent" class="text-xs text-terra font-semibold min-h-[1rem]"></p>' +
+      '<div style="position:absolute;left:-9999px;height:0;overflow:hidden" aria-hidden="true"><input id="fHp" tabindex="-1" autocomplete="off"></div>' +
+      '<p class="text-sm font-semibold text-forest">' + esc(t('reqNote')) + '</p>' +
+      '<details class="rounded-2xl border border-black/10 bg-white"><summary class="flex items-center justify-between gap-3 p-3 min-h-[44px] text-sm font-bold text-forest">' + esc(t('polTitle')) + '<svg class="chev w-4 h-4 transition-transform shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M6 9l6 6 6-6"/></svg></summary><ul class="px-4 pb-3 text-sm text-ink/80 space-y-1.5 list-disc pl-8">' + ['polPay', 'polCode', 'polHold', 'polFree', 'polHalf', 'polNone', 'polBase', 'polCount', 'polForce', 'polHost'].map((k) => '<li>' + esc(t(k, { co: COMPANY_NAME })) + '</li>').join('') + '</ul></details>' +
+      '<div id="dpNotice" class="hidden rounded-2xl bg-white border border-forest/30 p-4 text-sm text-forest font-semibold"></div>' +
+    '</div></div>';
+  $('#dpFooter').innerHTML = '<div class="lg:max-w-6xl lg:mx-auto lg:flex lg:items-center lg:justify-between lg:gap-8">' +
+    '<div class="flex items-baseline justify-between gap-3 mb-2 lg:mb-0 lg:gap-6 flex-wrap"><span class="text-sm text-ink/70">' + esc(t('footRoom')) + '</span><span><b id="ftRoom" class="font-display text-xl text-forest"></b> <span id="ftAddon" class="text-xs text-terra font-semibold"></span></span></div>' +
+    '<div class="grid grid-cols-1 sm:grid-cols-2 gap-2 lg:w-[30rem]"><button id="btnBook" type="button" class="btn btn-terra w-full min-h-[48px] order-1 sm:order-2 text-center leading-tight">' + esc(t('btnBook')) + '</button><button id="btnCopy" type="button" class="btn btn-ghost w-full min-h-[48px] order-2 sm:order-1">' + esc(t('btnCopy')) + '</button></div></div>';
+  updateCalc();
+}
+function updateCalc() {
+  const h = S.cur; if (!h) return; const c = calc();
+  $('#oN').textContent = S.nights; $('#oG').textContent = S.guests;
+  $('[data-act="n-"]').disabled = S.nights <= 1; $('[data-act="n+"]').disabled = S.nights >= MAX_NIGHTS;
+  $('[data-act="g-"]').disabled = S.guests <= 1; $('[data-act="g+"]').disabled = S.guests >= h.capacity;
+  const hp = h.groupPct > 0; $('#oDisc').textContent = c.disc ? t('discLine', { a: rp(c.disc) }) : (hp ? t('groupHint', { f: h.groupFrom, p: h.groupPct }) : '');
+  if (h.terimaBayi) { $('#oB').textContent = S.bayi; $('[data-act="b-"]').disabled = S.bayi <= 0; $('[data-act="b+"]').disabled = S.bayi >= 2; }
+  $('#oOut').textContent = S.form.checkin ? t('dpCheckout', { d: fmtDate(addDays(S.form.checkin, S.nights), S.lang) }) : '';
+  $('#boxRoom').textContent = rp(c.room); $('#boxAddon').textContent = rp(c.addon);
+  $('#ftRoom').textContent = rp(c.room); $('#ftAddon').textContent = c.addon ? t('footAddon') + ' ' + rp(c.addon) : '';
+  h.services.forEach((s) => { const el = $('[data-line="' + s.id + '"]'); if (el) el.textContent = S.addons[s.id] ? rp(s.price * svcQty(s, S.nights, S.guests)) : ''; });
+  const bn = blockedNight(h); $('#eAvail').textContent = h.closed ? 'Rumah ini sedang tutup sementara. Coba cek lagi nanti.' : bn ? t('errBlocked', { d: fmtDate(bn, S.lang) }) : '';
+  $('#oPeak').textContent = c.peakNights ? t('peakNote', { n: c.peakNights, l: c.peakLabel }) : '';
+  renderCalendar();
+}
+function bookingMessage() {
+  const h = S.cur, c = calc(), code = S.code || '-', ci = S.form.checkin, co = ci ? addDays(ci, S.nights) : '';
+  const ad = c.lines.length ? '\n' + c.lines.map((l) => '• ' + loc2(l.s.name) + ' ' + l.q + ' × ' + rp(l.s.price) + ' = ' + rp(l.sub)).join('\n') : '';
+  return '*Booking bolehnginep*\nKode: ' + code +
+    '\n\n*Rumah*\n' + h.name + ', ' + h.destination +
+    '\n\n*Tamu*\n' + (S.form.name || '-') + ' · ' + (normPhone(S.form.wa) || '-') +
+    '\n\n*Menginap*\nCheck-in: ' + (ci ? fmtDate(ci, 'id') : '-') + ' (' + (h.checkinTime || '14:00') + ')\nCheck-out: ' + (co ? fmtDate(co, 'id') : '-') + ' (' + (h.checkoutTime || '11:00') + ')\n' + S.nights + ' malam · ' + S.guests + ' tamu' + (S.bayi ? ' + ' + S.bayi + ' bayi (gratis)' : '') +
+    '\n\n*Dibayar ke admin (rekening perusahaan)*\nTarif kamar: ' + rp(c.room) + '\n' + rp(c.perGuest) + ' per tamu untuk ' + S.nights + ' malam × ' + S.guests + ' tamu' + (c.peakNights ? ' (termasuk ' + c.peakNights + ' malam musim ramai)' : '') + (c.disc ? '\nDiskon rombongan: -' + rp(c.disc) : '') +
+    (c.addon > 0 ? '\n\n*Dibayar langsung ke host (di lokasi)*\nLayanan tambahan, estimasi: ' + rp(c.addon) + ad : '\n\nLayanan tambahan: nggak ada') +
+    (S.form.note ? '\n\nCatatan: ' + S.form.note : '') +
+    '\n\nKalau sudah oke, kabari cara bayarnya ya. Terima kasih!';
+}
+const loc2 = (o) => (o && typeof o === 'object') ? (o.id || o.en || '') : (o || ''); // pesan WA selalu Bahasa Indonesia
+function validateForm() {
+  let ok = true;
+  const e = { name: '', wa: '', date: '' };
+  if ((S.form.name || '').trim().length < 2) { e.name = t('errName'); ok = false; }
+  if (!validPhone(S.form.wa)) { e.wa = t('errWA'); ok = false; }
+  if (!S.form.checkin || S.form.checkin < todayISO()) { e.date = t('errDate'); ok = false; }
+  const bn = S.cur && S.form.checkin ? blockedNight(S.cur) : null; if (bn) { e.date = S.cur.closed ? 'Rumah ini sedang tutup sementara.' : t('errBlocked', { d: fmtDate(bn, S.lang) }); ok = false; }
+  if (!S.form.consent) { e.consent = t('errConsent'); ok = false; }
+  $('#eName').textContent = e.name; $('#eWA').textContent = e.wa; $('#eDate').textContent = e.date; $('#eConsent').textContent = e.consent || '';
+  if (!ok) { const first = e.date ? '#fCheckin' : e.name ? '#fName' : e.wa ? '#fWA' : '#fConsent'; const el = $(first); if (el) { el.focus(); } toast(e.date || e.name || e.wa || e.consent); }
+  return ok;
+}
+function bookingPayload(code) {
+  return { action: 'createBooking', booking_code: code, homestay_id: S.cur.id, guest_name: S.form.name.trim(), guest_wa: normPhone(S.form.wa), checkin: S.form.checkin, nights: S.nights, guests: S.guests, bayi: S.bayi,
+    addons: Object.keys(S.addons).filter((k) => S.addons[k]), note: S.form.note || '', consent: true, hp: ($('#fHp') || {}).value || '', elapsed_ms: Date.now() - S.openedAt };
+}
+function showPayBox(n, url, c) {
+  clearInterval(S.cdTimer);
+  n.innerHTML = '<p class="font-semibold">' + esc(bookedTxt(c)) + '</p>' +
+    '<a href="' + esc(url) + '" target="_blank" rel="noopener" class="btn btn-primary w-full mt-2">' + esc(t('openWA')) + '</a>';
+  n.classList.remove('hidden');
+}
+function bookedTxt(c) { return S.pay ? t('bookedPay', { c: c }) : t('booked', { c: c }); }
+function doCopy() {
+  track('copy_wa', {});
+  const ok = copySync(bookingMessage());
+  toast(ok ? t('copied') : t('copyFail'));
+}
+function doBook() {
+  if (S.booking) return;
+  if (!validateForm()) return;
+  S.booking = true;
+  const code = newCode(); S.code = code; track('booking_request', { home: S.cur.id });
+  S.pay = null; if (!APPS_SCRIPT_URL) { const kd = 1 + Math.floor(Math.random() * 999); S.pay = { jum: calc().room + kd, kode: kd, hold: 60 }; }
+  const msg = bookingMessage(); const payload = bookingPayload(code);
+  // Salin + buka tab WA harus sinkron dalam satu gesture agar tidak diblokir browser.
+  const copied = copySync(msg);
+  const n = $('#dpNotice'), url = waLink(WA_PUSAT, msg);
+  if (!APPS_SCRIPT_URL) {
+    setTimeout(() => { S.booking = false; }, 3000);
+    window.open(url, '_blank', 'noopener');
+    showPayBox(n, url, code);
+    toast(copied ? t('bookedWA', { c: code }) : t('booked', { c: code }));
+    demoSaveBooking(payload, S.cur); return;
+  }
+  // Mode live: tanggal dikunci di server dulu. Tab WA dibuka kosong sekarang, diarahkan ke WA hanya kalau booking diterima.
+  const w = window.open('', '_blank'); try { if (w) w.opener = null; } catch (e) {}
+  n.textContent = t('booking'); n.classList.remove('hidden');
+  saveBooking(payload).then((res) => {
+    S.booking = false;
+    if (res.rejected) {
+      if (w) try { w.close(); } catch (e) {}
+      n.textContent = errMsg(res.r); toast(errMsg(res.r));
+      loadHomes().then(() => { renderCalendar(); updateCalc(); }).catch(() => {});
+      return;
+    }
+    const c = res.code || code; S.code = c; S.pay = res.pay || null;
+    const u = waLink(WA_PUSAT, bookingMessage());
+    if (w) { try { w.location.href = u; } catch (e) { window.open(u, '_blank', 'noopener'); } } else window.open(u, '_blank', 'noopener');
+    showPayBox(n, u, c);
+    toast(res.offline ? t('saveFail') : (copied ? t('bookedWA', { c: c }) : t('booked', { c: c })));
+  });
+}
+async function saveBooking(payload) {
+  try {
+    const r = await apiPost(payload, true);
+    if (!r || !r.ok) return { rejected: true, r: r };
+    return { code: r.booking_code, pay: r.jumlah_dibayar ? { jum: r.jumlah_dibayar, kode: r.kode_unik, hold: r.hold_minutes || 60 } : null };
+  } catch (e) {
+    const q = store.get('bn_pending', []); q.push(payload); store.set('bn_pending', q.slice(-10));
+    return { offline: true };
+  }
+}
+async function flushPending() {
+  if (!APPS_SCRIPT_URL) return; const q = store.get('bn_pending', []); if (!q.length) return; const rest = [];
+  for (const p of q) { try { const r = await apiPost(p); if (!r || !r.ok) { if (r && /^invalid_/.test(r.error || '')) continue; rest.push(p); } } catch (e) { rest.push(p); } }
+  store.set('bn_pending', rest);
+}
+function demoSaveBooking(p, h) {
+  const list = store.get('bn_demo_bookings', []);
+  const c = calc().room; let a = 0;
+  h.services.forEach((s) => { if (p.addons.indexOf(s.id) >= 0) a += s.price * svcQty(s, p.nights, p.guests); });
+  list.push(Object.assign({}, p, { homestay_name: h.name, destination: h.destination, room_total: c, jumlah_dibayar: S.pay ? S.pay.jum : c, kode_unik: S.pay ? S.pay.kode : 0, bayi: p.bayi || 0, addon_estimate: a, status: 'LUNAS', pic_name: h.pic, pic_wa: '6281200000002', host_name: h.host, host_wa: '6281200000001', forwarded_pic: false, forwarded_host: false, review_done: false }));
+  store.set('bn_demo_bookings', list.slice(-30));
+}
+
+/* ============ REVIEW ============ */
+function renderStars() {
+  $$('.stars').forEach((box) => {
+    const k = box.getAttribute('data-star'); const v = S.stars[k];
+    box.innerHTML = [1, 2, 3, 4, 5].map((i) => '<button type="button" role="radio" aria-checked="' + (v === i) + '" aria-label="' + i + '" data-v="' + i + '" class="w-11 h-11 inline-flex items-center justify-center rounded-full ' + (i <= v ? 'text-terra' : 'text-ink/25') + '"><svg class="w-8 h-8" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l2.9 6.6 7.1.6-5.4 4.7 1.7 7-6.3-3.8-6.3 3.8 1.7-7L2 9.2l7.1-.6z"/></svg></button>').join('');
+  });
+}
+function openReview() { S.stars = { home: 0, host: 0 }; $('#rvErr').textContent = ''; renderStars(); openLayer('reviewModal'); }
+async function submitReview() {
+  const code = $('#rvCode').value.trim().toUpperCase(), last4 = $('#rvLast4').value.replace(/\D/g, '');
+  const err = $('#rvErr'); err.textContent = '';
+  if (!code || last4.length !== 4) { err.textContent = t('rvErrCode'); return; }
+  if (!S.stars.home || !S.stars.host) { err.textContent = t('rvErrStar'); return; }
+  const payload = { action: 'submitReview', booking_code: code, wa_last4: last4, rating_home: S.stars.home, review_home: $('#rvTextHome').value, rating_host_pic: S.stars.host, review_host_pic: $('#rvTextHost').value };
+  const btn = $('#rvSubmit'); btn.disabled = true;
+  try {
+    let res;
+    if (APPS_SCRIPT_URL) res = await apiPost(payload); else res = demoReview(payload);
+    if (!res || !res.ok) { err.textContent = t('err_' + (res && res.error)) !== 'err_' + (res && res.error) ? t('err_' + res.error) : t('err_generic'); return; }
+    const hm = S.homes.filter((x) => x.id === res.homestay.id)[0];
+    if (hm) { hm.ratingHome = res.homestay.ratingHome; hm.countHome = res.homestay.countHome; hm.ratingHost = res.homestay.ratingHost; hm.countHost = res.homestay.countHost; }
+    track('review_submit', {}); closeLayer('reviewModal'); $('#rvForm').reset(); renderBento(); renderCatalog(); if (isOpen('howModal')) renderHow(); if (S.cur && isOpen('detailPanel')) renderPanel(); toast(t('rvOk'));
+  } catch (e) { err.textContent = t('err_generic'); } finally { btn.disabled = false; }
+}
+function demoReview(p) {
+  const all = demoBookings();
+  const done = store.get('bn_demo_reviewed', []);
+  const bk = all.filter((b) => String(b.booking_code).toUpperCase() === p.booking_code)[0];
+  if (!bk || normPhone(bk.guest_wa).slice(-4) !== p.wa_last4) return { ok: false, error: 'booking_not_found' };
+  if (done.indexOf(bk.booking_code) >= 0) return { ok: false, error: 'already_reviewed' };
+  const h = S.homes.filter((x) => x.id === bk.homestay_id)[0]; if (!h) return { ok: false, error: 'booking_not_found' };
+  done.push(bk.booking_code); store.set('bn_demo_reviewed', done);
+  const rl = store.get('bn_demo_reviews', []); rl.push({ review_id: 'RV-' + Math.random().toString(16).slice(2, 8).toUpperCase(), homestay_id: h.id, homestay_name: h.name, who: String(bk.guest_name).split(' ')[0], date: todayISO(), ratingHome: p.rating_home, textHome: p.review_home || '', ratingHost: p.rating_host_pic, textHost: p.review_host_pic || '', visible: true, reply: '' }); store.set('bn_demo_reviews', rl.slice(-40));
+  const r1 = Math.round(((h.ratingHome * h.countHome + p.rating_home) / (h.countHome + 1)) * 10) / 10;
+  const r2 = Math.round(((h.ratingHost * h.countHost + p.rating_host_pic) / (h.countHost + 1)) * 10) / 10;
+  return { ok: true, homestay: { id: h.id, ratingHome: r1, countHome: h.countHome + 1, ratingHost: r2, countHost: h.countHost + 1 } };
+}
+
+/* ============ EVENTS ============ */
+$('#q').addEventListener('input', (e) => { S.q = e.target.value; renderCatalog(); });
+$('#price').addEventListener('input', (e) => { S.maxPrice = Number(e.target.value); renderCatalog(); });
+$('#pills').addEventListener('click', (e) => { const b = e.target.closest('[data-mood]'); if (!b) return; S.mood = b.getAttribute('data-mood'); renderPills(); renderCatalog(); });
+$('#btnReset').addEventListener('click', () => { S.fDate = ''; S.sort = 'rec'; $('#fltDate').value = ''; renderFilterOpts(); S.q = ''; S.mood = 'all'; S.area = 'all'; S.maxPrice = S.priceCeil; $('#q').value = ''; $('#price').value = S.priceCeil; renderPills(); renderCatalog(); });
+document.addEventListener('click', (e) => {
+  const ar = e.target.closest('[data-area]'); if (ar) { const v = ar.getAttribute('data-area'); S.area = v === '__all' ? 'all' : v; track('area_select', { area: S.area }); renderCatalog(); const c = $('#catalog'); if (c) c.scrollIntoView({ behavior: 'smooth', block: 'start' }); return; }
+  const o = e.target.closest('[data-open]:not(.layer):not(#backdrop)'); if (o) { openDetail(o.getAttribute('data-open')); return; }
+  const c = e.target.closest('[data-close]'); if (c) { closeLayer(c.getAttribute('data-close')); return; }
+});
+$('#dpClose').addEventListener('click', () => closeLayer('detailPanel'));
+$('#btnRegTop').addEventListener('click', () => $('#btnRegFoot').click());
+$('#btnReview').addEventListener('click', openReview); $('#btnReviewFoot').addEventListener('click', openReview);
+$('#rvSubmit').addEventListener('click', submitReview);
+$('#rvForm').addEventListener('submit', (e) => { e.preventDefault(); submitReview(); });
+$('#rvForm').addEventListener('click', (e) => { const b = e.target.closest('[data-v]'); if (!b) return; const k = b.closest('.stars').getAttribute('data-star'); S.stars[k] = Number(b.getAttribute('data-v')); renderStars(); });
+
+$('#dpBody').addEventListener('click', (e) => {
+  const tm = e.target.closest('[data-terms]'); if (tm) { e.preventDefault(); openRules(tm.getAttribute('data-terms')); return; }
+  const cn = e.target.closest('[data-calnav]'); if (cn) { calNav(Number(cn.getAttribute('data-calnav'))); return; }
+  const cd = e.target.closest('[data-cal]'); if (cd) { pickDate(cd.getAttribute('data-cal')); return; }
+  const a = e.target.closest('[data-act]'); if (!a) return; const h = S.cur; const k = a.getAttribute('data-act');
+  if (k === 'n-') S.nights = Math.max(1, S.nights - 1); if (k === 'n+') S.nights = Math.min(MAX_NIGHTS, S.nights + 1);
+  if (k === 'b-') S.bayi = Math.max(0, S.bayi - 1); if (k === 'b+') S.bayi = Math.min(2, S.bayi + 1);
+  if (k === 'g-') S.guests = Math.max(1, S.guests - 1); if (k === 'g+') S.guests = Math.min(h.capacity, S.guests + 1);
+  updateCalc();
+});
+$('#dpBody').addEventListener('change', (e) => {
+  const s = e.target.closest('[data-svc]'); if (s) { S.addons[s.getAttribute('data-svc')] = s.checked; updateCalc(); return; }
+  if (e.target.id === 'fCheckin') { S.form.checkin = e.target.value; $('#eDate').textContent = ''; S.cal = null; updateCalc(); renderCalendar(); }
+  if (e.target.id === 'fConsent') { S.form.consent = e.target.checked; $('#eConsent').textContent = ''; }
+});
+$('#dpBody').addEventListener('input', (e) => {
+  const id = e.target.id;
+  if (id === 'fName') { S.form.name = e.target.value; $('#eName').textContent = ''; }
+  else if (id === 'fWA') { S.form.wa = e.target.value; $('#eWA').textContent = ''; }
+  else if (id === 'fNote') S.form.note = e.target.value;
+  else if (id === 'fCheckin') { S.form.checkin = e.target.value; updateCalc(); }
+});
+$('#dpFooter').addEventListener('click', (e) => { if (e.target.closest('#btnBook')) doBook(); else if (e.target.closest('#btnCopy')) doCopy(); });
+
+
+
+/* ============ ATURAN & STANDAR ============ */
+const RULES = {
+  id: {
+    guest: ['Hormati privasi, adat, dan jam tenang keluarga tuan rumah. Kamu menginap di rumah mereka, bukan di hotel.', 'Bawa KTP atau paspor. Tuan rumah atau pendamping akan mencatat identitasmu dan melapor ke RT/RW setempat.', 'Jumlah tamu tidak boleh melebihi kapasitas. Menambah orang bisa dilakukan sebelum check-in lewat admin. Tamu yang tidak tercatat boleh ditolak tuan rumah dan tidak mendapat bantuan atau refund.', 'Dilarang membawa narkoba atau barang terlarang. Ikuti aturan rumah soal rokok dan alkohol.', 'Jaga barang berhargamu sendiri. Kunci kamar dari dalam saat tidur.', 'Ada kendala? Hubungi pendamping lokal dulu, nanti pendamping membantu menyelesaikannya bersama tuan rumah.', 'Layanan tambahan dibayar sesuai daftar harga. Kalau ditagih di luar daftar itu, laporkan lewat Lapor masalah.', 'Setelah menginap, tulis ulasan yang jujur ya.'],
+    host: ['Rumah wajib sesuai standar bolehnginep sebelum tayang, dan dicek ulang berkala oleh pendamping.', 'Tarif kamar maksimal Rp100.000 per tamu per malam (Rp130.000 di musim ramai). Dilarang menagih tarif kamar di luar sistem.', 'Ganti seprai dan sarung bantal untuk setiap tamu baru.', 'Layanan tambahan hanya boleh ditagih sesuai daftar harga yang tampil di situs.', 'Jaga status Buka/Tutup dan blokir tanggal tetap akurat. Pembatalan sepihak berulang bisa membuat rumah dinonaktifkan.', 'Jangan masuk kamar tamu atau memotret tamu tanpa izin.', 'Pembayaran kamar diterima dari admin H+1 setelah tamu check-in.'],
+    pic: ['Periksa rumah langsung memakai checklist standar dan lampirkan foto bukti sebelum merekomendasikan lolos.', 'Dilarang memeriksa rumah milik sendiri atau keluarga sendiri.', 'Jadi penghubung antara admin, tamu, dan tuan rumah. Balas maksimal 2 jam di jam kerja.', 'Komisi cair H+3 setelah check-out untuk booking selesai tanpa komplain berat, dan dapat ditarik kembali bila kemudian terbukti ada pelanggaran. Komplain berat diputuskan admin.', 'Dilarang meminta, menekan, atau memberi imbalan agar tamu memberi rating tinggi, dan dilarang membuat booking palsu. Pelanggaran membuat insentif hangus dan pendamping diberhentikan.', 'Pendamping tidak menangani komplain atas rumahnya sendiri.', 'Admin mengaudit rumah dan ulasan secara acak.'],
+    system: ['Kirim booking lewat chat dan terima nominal transfer. Setelah kamu bayar tepat nominalnya, admin konfirmasi dan kamarmu aman.', 'Pembayaran kamar hanya ke rekening atas nama perusahaan. Admin tidak pernah meminta transfer ke rekening pribadi.', 'Ulasan hanya dari tamu dengan kode booking terverifikasi, satu ulasan per booking. Rumah serta tuan rumah dan pendamping dinilai terpisah.', 'Data pribadimu hanya dipakai untuk booking. Nomor WA-mu hanya dibagikan ke pendamping untuk koordinasi.', 'Ada masalah? Lapor lewat tombol Lapor masalah, kami bantu sampai beres.', 'Kebijakan batal dan refund tampil di setiap halaman detail rumah.']
+  },
+};
+let ruTab = 'guest';
+function renderRules() {
+  const tabs = [['guest', 'ruGuest'], ['host', 'ruHost'], ['pic', 'rulePic'], ['system', 'ruTabPay'], ['terms', 'ruTabTerms'], ['privacy', 'ruTabPriv']];
+  $('#ruTabs').innerHTML = tabs.map((x) => '<button type="button" role="tab" aria-selected="' + (ruTab === x[0]) + '" data-rutab="' + x[0] + '" class="shrink-0 min-h-[44px] px-4 rounded-full text-sm font-semibold border-[1.5px] ' + (ruTab === x[0] ? 'bg-forest text-white border-forest' : 'bg-white text-forest border-forest/25') + '">' + esc(t(x[1])) + '</button>').join('');
+  $('#ruBody').innerHTML = ((ruTab === 'terms' || ruTab === 'privacy') ? '<p class="mb-3 rounded-xl bg-terra/10 text-terra text-xs font-semibold p-3">' + esc(t('draftNote')) + '</p>' : '') + '<ol class="space-y-2.5 text-sm text-ink/85">' + RULES[S.lang][ruTab].map((r, i) => '<li class="flex gap-3"><span class="w-6 h-6 rounded-full bg-cream text-forest font-bold text-xs flex items-center justify-center shrink-0">' + (i + 1) + '</span><span class="pt-0.5">' + esc(r) + '</span></li>').join('') + '</ol>' +
+    (ruTab === 'system' ? '<div class="mt-5 rounded-2xl bg-cream p-4"><p class="font-bold text-forest text-sm mb-1.5">' + esc(t('polTitle')) + '</p><ul class="text-sm text-ink/80 space-y-1.5 list-disc pl-5">' + ['polPay', 'polHold', 'polFree', 'polHalf', 'polNone', 'polCount', 'polForce', 'polHost'].map((k) => '<li>' + esc(t(k, { co: COMPANY_NAME })) + '</li>').join('') + '</ul></div>' : '');
+}
+function openRules(tab) { if (tab) ruTab = tab; renderRules(); openLayer('rulesModal'); }
+$('#ruTabs').addEventListener('click', (e) => { const b = e.target.closest('[data-rutab]'); if (!b) return; ruTab = b.getAttribute('data-rutab'); renderRules(); });
+$('#btnRulesFoot').addEventListener('click', () => openRules('guest'));
+$('#btnTermsFoot').addEventListener('click', () => openRules('terms'));
+
+/* ============ DAFTAR RUMAH ============ */
+const RG = [['host_name', 'rgHost', 'text', 'name'], ['host_wa', 'rgWA', 'tel', 'tel'], ['name', 'rgName', 'text', ''], ['destination', 'rgDest', 'text', ''], ['city', 'rgCity', 'text', ''], ['area', 'rgArea', 'text', ''], ['price', 'rgPrice', 'number', ''], ['peak_price', 'rgPeak', 'number', ''], ['capacity', 'rgCap', 'number', ''], ['desc', 'rgDesc', 'textarea', ''], ['lingkungan', 'rgEnv', 'textarea', ''], ['referred_by', 'rgRef', 'text', '']];
+function renderReg() {
+  $('#rgIntro').textContent = t('rgIntro'); $('#rgAgreeTxt').textContent = t('rgAgree');
+  $('#rgFields').innerHTML = RG.map((f) => '<div><label class="text-sm font-semibold" for="rg_' + f[0] + '">' + esc(t(f[1])) + '</label>' +
+    (f[2] === 'textarea' ? '<textarea id="rg_' + f[0] + '" rows="3" maxlength="400" class="field"></textarea>' : '<input id="rg_' + f[0] + '" type="' + f[2] + '" class="field"' + (f[2] === 'number' ? ' inputmode="numeric" min="1"' : '') + (f[2] === 'tel' ? ' inputmode="tel" placeholder="0812xxxxxxxx"' : '') + (f[3] ? ' autocomplete="' + f[3] + '"' : '') + '>') + '</div>').join('');
+  $('#rgErr').textContent = '';
+}
+function openReg() { renderReg(); $('#rgAgree').checked = false; S.regOpenedAt = Date.now(); openLayer('regModal'); }
+async function submitReg() {
+  const v = {}; RG.forEach((f) => { v[f[0]] = ($('#rg_' + f[0]).value || '').trim(); });
+  const price = Number(v.price), cap = Number(v.capacity), peak = v.peak_price ? Number(v.peak_price) : 0; const err = $('#rgErr'); err.textContent = '';
+  const required = ['host_name', 'host_wa', 'name', 'destination', 'city', 'area'];
+  if (required.some((k) => v[k].length < 2) || !validPhone(v.host_wa) || !(price >= 20000 && price <= MAX_PRICE) || (peak && !(peak >= price && peak <= MAX_PEAK_PRICE)) || !(cap >= 1 && cap <= 10) || !$('#rgAgree').checked) { err.textContent = t('rgErr'); return; }
+  const payload = { action: 'registerHome', host_name: v.host_name, host_wa: normPhone(v.host_wa), name: v.name, destination: v.destination, city: v.city, area: v.area, price: price, peak_price: peak || '', capacity: cap, hp: '', elapsed_ms: Date.now() - S.regOpenedAt, desc: v.desc, lingkungan: v.lingkungan, referred_by: v.referred_by };
+  const btn = $('#rgSubmit'); btn.disabled = true;
+  try {
+    let r;
+    if (APPS_SCRIPT_URL) r = await apiPost(payload); else { const l = store.get('bn_demo_regs', []); l.push(payload); store.set('bn_demo_regs', l.slice(-20)); r = { ok: true }; }
+    if (!r || !r.ok) { const k = 'err_' + (r && r.error); err.textContent = (r && T[S.lang][k]) ? t(k) : t('rgErr'); return; }
+    closeLayer('regModal'); toast(t('rgOk')); track('register_home', {});
+  } catch (e) { err.textContent = t('err_generic'); } finally { btn.disabled = false; }
+}
+$('#btnRegFoot').addEventListener('click', openReg);
+$('#rgSubmit').addEventListener('click', submitReg);
+$('#rgForm').addEventListener('submit', (e) => { e.preventDefault(); submitReg(); });
+
+/* ============ ANALITIK (opsional, tanpa cookie) ============ */
+function track(ev, props) { try { if (window.plausible) window.plausible(ev, { props: props || {} }); } catch (e) {} }
+(function () {
+  if (!PLAUSIBLE_DOMAIN) return;
+  window.plausible = window.plausible || function () { (window.plausible.q = window.plausible.q || []).push(arguments); };
+  const sc = document.createElement('script'); sc.defer = true; sc.setAttribute('data-domain', PLAUSIBLE_DOMAIN); sc.src = 'https://plausible.io/js/script.js'; document.head.appendChild(sc);
+})();
+
+/* ============ GALERI, LOKASI, ATURAN RUMAH, ULASAN ============ */
+const safeHttps = (u) => /^https:\/\//i.test(String(u || '')) ? String(u) : '';
+function gallery(h) {
+  const imgs = (h.photos && h.photos.length ? h.photos : (h.photo ? [h.photo] : [])).map(safeHttps).filter(Boolean);
+  if (!imgs.length) return art(h, 'aspect-[16/10] rounded-2xl', 900);
+  const w = imgs.length > 1 ? 'w-[88%]' : 'w-full';
+  return '<div class="flex gap-2 overflow-x-auto snap-x snap-mandatory noscroll rounded-2xl">' + imgs.map((u, i) => '<div class="snap-start shrink-0 ' + w + ' relative aspect-[16/10] rounded-2xl overflow-hidden bg-forest"><img src="' + esc(u) + '" alt="' + esc(h.name) + ' ' + (i + 1) + '" loading="lazy" decoding="async" class="absolute inset-0 w-full h-full object-cover"></div>').join('') + '</div>';
+}
+function locationHTML(h) {
+  const howBtn = '<button type="button" data-how class="mt-4 text-sm underline underline-offset-4 decoration-terra text-forest font-semibold min-h-[44px]">' + esc(t('howLink')) + '</button>';
+  const dist = loc(h.distance); const rules = (h.rules && (h.rules[S.lang] || h.rules.id)) || [];
+  const map = safeHttps(h.mapUrl) || ('https://www.google.com/maps/search/?api=1&query=' + encodeURIComponent([h.name, h.area, h.city].join(' ')));
+  const times = (h.checkinTime || h.checkoutTime) ? '<p class="text-sm text-ink/80 mt-1">' + esc(t('dpTimes', { i: h.checkinTime || '-', o: h.checkoutTime || '-' })) + '</p>' : '';
+  return '<section><h3 class="font-display text-lg font-bold text-forest">' + esc(t('dpLocation')) + '</h3>' + (dist ? '<p class="mt-1 text-ink/80 text-sm">' + esc(dist) + '</p>' : '') + times +
+    '<a href="' + esc(map) + '" target="_blank" rel="noopener" class="btn btn-ghost mt-2 !min-h-[44px] text-sm">' + esc(t('dpMap')) + ' ↗</a>' +
+    (rules.length ? '<h4 class="mt-4 font-bold text-sm text-forest">' + esc(t('dpRules')) + '</h4><ul class="mt-1 text-sm text-ink/80 list-disc pl-5 space-y-1">' + rules.map((r) => '<li>' + esc(r) + '</li>').join('') + '</ul>' : '') + howBtn + '</section>';
+}
+function consentHTML() {
+  const a = '<button type="button" data-terms="terms" class="underline text-forest font-semibold">' + esc(t('consentTermsLbl')) + '</button>';
+  const b = '<button type="button" data-terms="privacy" class="underline text-forest font-semibold">' + esc(t('consentPrivLbl')) + '</button>';
+  return esc(t('consentTxt')).replace('{terms}', a).replace('{privacy}', b);
+}
+async function loadReviews(id) {
+  let list = [];
+  try {
+    if (APPS_SCRIPT_URL) { const r = await apiGet({ action: 'reviews', id: id }); if (r && r.ok) list = r.reviews || []; }
+    else list = store.get('bn_demo_reviews', []).filter((r) => r.homestay_id === id && r.visible !== false).slice().reverse();
+  } catch (e) {}
+  const el = $('#dpRevList'); if (!el || !S.cur || S.cur.id !== id) return;
+  el.innerHTML = list.length ? list.map((r) => '<article class="rounded-2xl bg-cream p-3 text-sm"><p class="font-semibold text-forest">' + esc(r.who || '') + ' <span class="font-normal text-ink/50">· ' + esc(r.date || '') + '</span></p>' +
+    '<p class="mt-1">' + esc(t('rHome')) + ': ' + star + ' <b>' + Number(r.ratingHome).toFixed(0) + '</b>' + (r.textHome ? ' · ' + esc(r.textHome) : '') + '</p>' +
+    '<p class="mt-0.5">' + esc(t('rHost')) + ': ' + star + ' <b>' + Number(r.ratingHost).toFixed(0) + '</b>' + (r.textHost ? ' · ' + esc(r.textHost) : '') + '</p>' +
+    (r.reply ? '<p class="mt-2 pl-3 border-l-2 border-terra text-ink/80"><b>' + esc(t('hostReply')) + ':</b> ' + esc(r.reply) + '</p>' : '') + '</article>').join('') : '<p class="text-sm text-ink/55">' + esc(t('dpNoReviews')) + '</p>';
+}
+
+/* ============ KALENDER KETERSEDIAAN ============ */
+function renderCalendar() {
+  const h = S.cur, box = $('#calGrid'); if (!h || !box) return;
+  if (!S.cal) { const base = S.form.checkin ? S.form.checkin : todayISO(); S.cal = { y: Number(base.slice(0, 4)), m: Number(base.slice(5, 7)) - 1 }; }
+  const y = S.cal.y, m = S.cal.m, first = new Date(y, m, 1), days = new Date(y, m + 1, 0).getDate(), off = (first.getDay() + 6) % 7;
+  const blocks = S.blocks[h.id] || [], today = todayISO(), sel = new Set(stayNights());
+  const wk = S.lang === 'id' ? ['Sen', 'Sel', 'Rab', 'Kam', 'Jum', 'Sab', 'Min'] : ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+  let cells = ''; for (let i = 0; i < off; i++) cells += '<span></span>';
+  for (let d = 1; d <= days; d++) {
+    const iso = y + '-' + pad(m + 1) + '-' + pad(d);
+    const past = iso < today, full = blocks.some((x) => iso >= x[0] && iso <= x[1]), pk = h.peakPrice > 0 && !!peakAt(iso), on = sel.has(iso);
+    const cls = on ? 'bg-forest text-white' : full ? 'bg-black/5 text-ink/35 line-through' : past ? 'text-ink/25' : 'bg-white hover:bg-cream text-ink';
+    cells += '<button type="button" ' + ((past || full) ? 'disabled ' : '') + 'data-cal="' + iso + '" aria-label="' + iso + (full ? ' ' + esc(t('calFull')) : '') + '" aria-pressed="' + on + '" class="relative h-11 rounded-xl text-sm font-semibold ' + cls + '">' + d + (pk && !full && !past ? '<span class="absolute bottom-1 left-1/2 -translate-x-1/2 w-1.5 h-1.5 rounded-full bg-terra"></span>' : '') + '</button>';
+  }
+  const ci = $('#ciShow'); if (ci) ci.textContent = S.form.checkin ? fmtDate(S.form.checkin, S.lang) : t('calPick');
+  const title = first.toLocaleDateString(S.lang === 'id' ? 'id-ID' : 'en-GB', { month: 'long', year: 'numeric' });
+  box.innerHTML = '<div class="flex items-center justify-between mb-2"><button type="button" class="stepbtn" data-calnav="-1" aria-label="‹">‹</button><p class="font-bold text-forest capitalize">' + esc(title) + '</p><button type="button" class="stepbtn" data-calnav="1" aria-label="›">›</button></div>' +
+    '<div class="grid grid-cols-7 gap-1 text-center text-[11px] font-semibold text-ink/50 mb-1">' + wk.map((x) => '<span>' + x + '</span>').join('') + '</div><div class="grid grid-cols-7 gap-1">' + cells + '</div>' +
+    '<p class="mt-2 text-xs text-ink/60"><span class="inline-block w-2 h-2 rounded-full bg-terra align-middle"></span> ' + esc(t('calPeak')) + ' · <span class="line-through">12</span> ' + esc(t('calFull')) + '</p><p class="text-xs text-ink/60">' + esc(t('calPick'))+ '</p>';
+}
+function calNav(d) { if (!S.cal) return; let m = S.cal.m + d, y = S.cal.y; if (m < 0) { m = 11; y--; } if (m > 11) { m = 0; y++; } S.cal = { y: y, m: m }; renderCalendar(); }
+function pickDate(iso) { S.form.checkin = iso; const f = $('#fCheckin'); if (f) f.value = iso; $('#eDate').textContent = ''; updateCalc(); renderCalendar(); }
+
+/* ============ DEMO STORE (mode tanpa backend) ============ */
+function demoBookings() {
+  const ov = store.get('bn_demo_ov', {});
+  return SEED_BOOKINGS.map((x) => Object.assign({}, x, ov[x.booking_code] || {})).concat(store.get('bn_demo_bookings', []));
+}
+function demoUpdate(code, patch) {
+  const mine = store.get('bn_demo_bookings', []); const i = mine.findIndex((b) => b.booking_code === code);
+  if (i >= 0) { Object.assign(mine[i], patch); store.set('bn_demo_bookings', mine); } else { const ov = store.get('bn_demo_ov', {}); ov[code] = Object.assign(ov[code] || {}, patch); store.set('bn_demo_ov', ov); }
+}
+const daysDiff = (a, b) => { const pa = a.split('-').map(Number), pb = b.split('-').map(Number); return Math.round((Date.UTC(pb[0], pb[1] - 1, pb[2]) - Date.UTC(pa[0], pa[1] - 1, pa[2])) / 86400000); };
+function refundCalc(status, checkin, total) { // sama dengan computeRefund_ di Code.gs
+  if (status === 'MENUNGGU_PEMBAYARAN') return { paid: false, pct: 0, refund: 0 };
+  if (status !== 'LUNAS') return { paid: true, pct: 0, refund: 0 };
+  const left = daysDiff(todayISO(), checkin); const pct = left >= 3 ? 1 : left >= 1 ? 0.5 : 0;
+  return { paid: true, pct: pct, refund: Math.min(total, Math.ceil(total * pct - 1e-6)) };
+}
+
+/* ============ CEK BOOKING & PEMBATALAN ============ */
+function openStatus() { $('#stErr').textContent = ''; $('#stResult').innerHTML = ''; $('#stDemoHint').textContent = t('rvDemoHint'); $('#stDemoHint').classList.toggle('hidden', !S.demo); openLayer('statusModal'); }
+async function checkStatus() {
+  const code = $('#stCode').value.trim().toUpperCase(), last4 = $('#stLast4').value.replace(/\D/g, ''); const err = $('#stErr'); err.textContent = ''; $('#stResult').innerHTML = '';
+  if (!code || last4.length !== 4) { err.textContent = t('rvErrCode'); return; }
+  const btn = $('#stGo'); btn.disabled = true;
+  try {
+    let r;
+    if (APPS_SCRIPT_URL) r = await apiPost({ action: 'bookingStatus', booking_code: code, wa_last4: last4 });
+    else {
+      const b = demoBookings().filter((x) => String(x.booking_code).toUpperCase() === code)[0];
+      if (!b || normPhone(b.guest_wa).slice(-4) !== last4) r = { ok: false, error: 'booking_not_found' };
+      else { const can = ['MENUNGGU_PEMBAYARAN', 'LUNAS'].indexOf(b.status) >= 0; const rf = refundCalc(b.status, b.checkin, b.jumlah_dibayar || b.room_total);
+        r = { ok: true, booking: { code: b.booking_code, homestay_name: b.homestay_name, destination: b.destination, checkin: b.checkin, nights: b.nights, guests: b.guests, room_total: b.room_total, jumlah_dibayar: b.jumlah_dibayar || b.room_total, kode_unik: b.kode_unik || 0, addon_estimate: b.addon_estimate, status: b.status, review_done: !!b.review_done, refund_amount: b.refund_amount || 0, refund_status: b.refund_status || '', cancellable: can, refund_preview: can ? rf : null } }; }
+    }
+    if (!r || !r.ok) { err.textContent = errMsg(r); return; }
+    S.stBooking = r.booking; S.stConfirm = false; renderStatus();
+  } catch (e) { err.textContent = t('err_generic'); } finally { btn.disabled = false; }
+}
+function errMsg(r) { const k = 'err_' + (r && r.error); return (r && t(k) !== k) ? t(k) : t('err_generic'); }
+function renderStatus() {
+  const b = S.stBooking; if (!b) return; const rf = b.refund_preview;
+  let info = '';
+  if (b.cancellable && rf) info = !rf.paid ? t('stUnpaid') : rf.refund > 0 ? t('stRefundPct', { p: Math.round(rf.pct * 100), a: rp(rf.refund) }) : t('stNoRefund');
+  const done = b.status === 'BATAL' ? '<p class="text-sm font-semibold text-forest">' + esc(b.refund_amount > 0 ? t('stCancelled', { a: rp(b.refund_amount) }) : t('stCancelledFree')) + '</p>' : '';
+  $('#stResult').innerHTML = '<div class="rounded-2xl border border-black/10 p-4 space-y-2 text-sm"><p class="font-display text-lg font-bold text-forest">' + esc(b.homestay_name) + '</p><p class="text-ink/70">' + esc(b.destination) + '</p>' +
+    '<p><b>' + esc(t('dpcStatus')) + ':</b> <span class="inline-block rounded-full bg-forest text-white px-2.5 py-0.5 text-xs font-bold">' + esc(t('stSt_' + b.status) !== 'stSt_' + b.status ? t('stSt_' + b.status) : b.status) + '</span></p>' +
+    '<p><b>' + esc(t('stDates')) + ':</b> ' + esc(fmtDate(b.checkin, S.lang)) + ' · ' + b.nights + ' ' + (S.lang === 'id' ? 'malam' : 'night(s)') + ' · ' + b.guests + ' ' + (S.lang === 'id' ? 'tamu' : 'guest(s)') + '</p>' +
+    '<p><b>' + esc(t('stRoom')) + ':</b> ' + rp(b.room_total) + '</p>' +
+    '' + (info ? '<p class="rounded-xl bg-cream p-3">' + esc(info) + '</p>' : '') + done +
+    (b.status === 'SELESAI' || b.status === 'LUNAS' ? '<p class="text-xs text-ink/60">' + esc(t('stReviewHint')) + '</p>' : '') +
+    (b.cancellable ? (S.stConfirm ? '<button id="stDoCancel" type="button" class="btn btn-terra w-full">' + esc(t('stConfirm')) + '</button>' : '<button id="stAskCancel" type="button" class="btn btn-ghost w-full">' + esc(t('stCancel')) + '</button>') : '') + '</div>';
+}
+async function doCancel() {
+  const b = S.stBooking; if (!b) return; const last4 = $('#stLast4').value.replace(/\D/g, ''); const btn = $('#stDoCancel'); if (btn) btn.disabled = true;
+  try {
+    let r;
+    if (APPS_SCRIPT_URL) r = await apiPost({ action: 'cancelBooking', booking_code: b.code, wa_last4: last4 });
+    else { const rf = refundCalc(b.status, b.checkin, b.jumlah_dibayar || b.room_total); demoUpdate(b.code, { status: 'BATAL', refund_amount: rf.refund, refund_status: rf.refund > 0 ? 'MENUNGGU_REFUND' : 'TIDAK_ADA' }); r = { ok: true, refund_amount: rf.refund }; }
+    if (!r || !r.ok) { $('#stErr').textContent = errMsg(r); return; }
+    b.status = 'BATAL'; b.cancellable = false; b.refund_preview = null; b.refund_amount = r.refund_amount || 0; S.stConfirm = false; track('cancel_booking', {}); renderStatus(); toast(b.refund_amount > 0 ? t('stCancelled', { a: rp(b.refund_amount) }) : t('stCancelledFree'));
+  } catch (e) { $('#stErr').textContent = t('err_generic'); }
+}
+$('#btnStatusFoot').addEventListener('click', openStatus);
+$('#stGo').addEventListener('click', checkStatus);
+$('#stResult').addEventListener('click', (e) => { if (e.target.closest('#stAskCancel')) { S.stConfirm = true; renderStatus(); } else if (e.target.closest('#stDoCancel')) doCancel(); });
+
+/* ============ KOMPLAIN ============ */
+const COMPLAINT_CATS = ['kebersihan', 'keamanan', 'tagihan_di_luar_rate_card', 'perilaku_pemilik_pic', 'lainnya'];
+function openComplaint() { $('#cpCat').innerHTML = COMPLAINT_CATS.map((c) => '<option value="' + c + '">' + esc(t('cat_' + c)) + '</option>').join(''); $('#cpErr').textContent = ''; S.cpOpenedAt = Date.now(); openLayer('compModal'); }
+async function submitComplaint() {
+  const code = $('#cpCode').value.trim().toUpperCase(), last4 = $('#cpLast4').value.replace(/\D/g, ''), desc = $('#cpDesc').value.trim(); const err = $('#cpErr'); err.textContent = '';
+  if (!code || last4.length !== 4 || desc.length < 10) { err.textContent = t('cpErr'); return; }
+  const payload = { action: 'submitComplaint', booking_code: code, wa_last4: last4, category: $('#cpCat').value, description: desc, hp: $('#cpHp').value, elapsed_ms: Date.now() - S.cpOpenedAt };
+  const btn = $('#cpSubmit'); btn.disabled = true;
+  try {
+    let r;
+    if (APPS_SCRIPT_URL) r = await apiPost(payload);
+    else { const b = demoBookings().filter((x) => String(x.booking_code).toUpperCase() === code)[0]; if (!b || normPhone(b.guest_wa).slice(-4) !== last4) r = { ok: false, error: 'booking_not_found' }; else { const l = store.get('bn_demo_complaints', []); l.push({ code: code, cat: payload.category, desc: desc }); store.set('bn_demo_complaints', l.slice(-20)); r = { ok: true }; } }
+    if (!r || !r.ok) { err.textContent = errMsg(r); return; }
+    closeLayer('compModal'); $('#cpForm').reset(); track('complaint', {}); toast(t('cpOk'));
+  } catch (e) { err.textContent = t('err_generic'); } finally { btn.disabled = false; }
+}
+$('#btnCompFoot').addEventListener('click', openComplaint);
+$('#cpSubmit').addEventListener('click', submitComplaint);
+$('#cpForm').addEventListener('submit', (e) => { e.preventDefault(); submitComplaint(); });
+
+/* ============ SYARAT & PRIVASI (draf) ============ */
+RULES.id.terms = ['bolehnginep adalah platform pemesanan kamar live-in di rumah mitra. Kamu menginap di rumah pemilik, bukan di hotel.', 'Booking di situs ini baru pasti setelah tarif kamar dibayar dan tim bolehnginep mengonfirmasinya. Tarif akhir mengikuti rincian pada kalkulator, termasuk tarif musim ramai bila ada.', 'Tarif kamar hanya dibayar ke rekening atas nama perusahaan. Layanan tambahan dibayar langsung ke tuan rumah sesuai daftar harga dan bukan bagian dari tagihan kamar. Nominal transfer berlaku 60 menit sejak diterbitkan dan harus sesuai, termasuk kode unik.', 'Pembatalan dan refund mengikuti kebijakan yang tampil di halaman detail rumah.', 'Tamu wajib mengikuti aturan tamu dan aturan rumah. Pelanggaran berat dapat membuat booking dihentikan tanpa refund.', 'Tim bolehnginep membantu menyelesaikan sengketa antara tamu dan host, tetapi tidak bertanggung jawab atas kehilangan barang pribadi. Keselamatan aktivitas seperti trekking dan tur menjadi tanggung jawab penyelenggara tur lokal.', 'Ulasan harus jujur. Tim bolehnginep dapat menyembunyikan ulasan yang berisi ujaran kebencian, data pribadi, atau tidak relevan.', 'Layanan ini masih dalam masa uji coba, sehingga ketentuan dapat berubah.', 'Syarat ini dapat diperbarui dan tunduk pada hukum Republik Indonesia.'];
+RULES.id.privacy = ['Data yang kami kumpulkan: nama, nomor WhatsApp, rincian menginap, catatan, serta isi ulasan dan komplain. Situs ini tidak mengumpulkan KTP. Identitas hanya diperiksa langsung saat check-in oleh tuan rumah atau pendamping.', 'Tujuan penggunaan: memproses booking, koordinasi, pembayaran dan refund, ulasan, serta menjaga mutu layanan.', 'Data dibagikan seperlunya: nama tamu ke tuan rumah, nomor WhatsApp tamu ke pendamping. Data tidak dijual kepada pihak lain.', 'Data booking disimpan selama diperlukan untuk operasional dan pembukuan, lalu dihapus atau dianonimkan.', 'Kamu dapat meminta akses, koreksi, atau penghapusan data lewat chat admin bolehnginep.', 'Akses admin dilindungi PIN dan pembatasan percobaan. Tidak ada sistem yang sepenuhnya bebas risiko, jadi laporkan segera jika ada dugaan penyalahgunaan.', 'Jika analitik diaktifkan, kami memakai analitik tanpa cookie yang tidak mengenali individu.'];
+
+
+/* ============ LINK PER RUMAH, BAGIKAN, FILTER ============ */
+const BUILT = false;
+const SHOW_SAMPLES = true; // tampilkan rumah contoh berlabel 'Contoh' (tidak bisa dibooking) selama rumah asli < 8. Build: env SHOW_SAMPLES=false mematikan. // diset true oleh scripts/build.mjs (halaman /rumah/<id>/ dengan pratinjau WA)
+function setUrlHome(id) {
+  try { const u = new URL(location.href); if (id) u.searchParams.set('home', id); else u.searchParams.delete('home'); history.replaceState(null, '', u.pathname + u.search + u.hash); } catch (e) {}
+}
+function shareUrl(h) { return BUILT ? location.origin + '/rumah/' + String(h.id).toLowerCase() + '/' : location.origin + location.pathname + '?home=' + encodeURIComponent(h.id); }
+function applyUrlHome() {
+  try { const id = new URLSearchParams(location.search).get('home'); if (!id) return; if (S.homes.some((x) => x.id === id)) openDetail(id); else setUrlHome(null); } catch (e) {}
+}
+$('#dpShare').addEventListener('click', async () => {
+  const h = S.cur; if (!h) return; const url = shareUrl(h); track('share_home', { home: h.id });
+  const text = t('shareText', { n: h.name, d: h.destination, p: rp(h.price) });
+  if (navigator.share) { try { await navigator.share({ title: h.name, text: text, url: url }); return; } catch (e) { if (e && e.name === 'AbortError') return; } }
+  toast(copySync(url) ? t('shareCopied') : url);
+});
+$('#fltDate').min = todayISO();
+$('#fltDate').addEventListener('change', (e) => { const v = e.target.value; S.fDate = v && v >= todayISO() ? v : ''; if (v && !S.fDate) e.target.value = ''; track('filter_date'); renderCatalog(); });
+$('#fltNights').addEventListener('change', (e) => { S.fNights = Number(e.target.value) || 2; renderCatalog(); });
+$('#sortBy').addEventListener('change', (e) => { S.sort = e.target.value; renderCatalog(); });
+
+/* ============ CARA KERJA & EKSPEKTASI LIVE-IN ============ */
+const HOW = {
+  id: {
+    steps: [['Pilih rumah dan tanggal', 'Filter sesuai tanggal, lihat foto, aturan rumah, dan daftar harga. Harga per tamu per malam tertera di tiap rumah.'],
+      ['Kirim permintaan lewat WhatsApp', 'Tombol di halaman rumah mengamankan tanggalmu dan membuka chat admin yang berisi nominal transfer. Nominal berlaku 60 menit.'],
+      ['Transfer sesuai nominal', 'Transfer tepat sesuai nominal, termasuk 3 digit kode unik, ke rekening atas nama perusahaan dalam 60 menit. Jangan transfer ke rekening pribadi siapa pun.'],
+      ['Menginap, lalu beri ulasan', 'Layanan tambahan seperti sarapan, motor, dan tur dibayar langsung ke tuan rumah sesuai daftar harga. Setelah menginap, tulis ulasan pakai kode booking.']],
+    expect: ['Kamu numpang di rumah keluarga. Ruang tamu, dapur, atau kamar mandi bisa dipakai bersama.',
+      'Ini bukan hotel: tidak ada resepsionis 24 jam. Fasilitas seperti air panas berbeda di tiap rumah, jadi baca deskripsi dan aturan rumahnya.',
+      'Ikuti jam tenang dan aturan rumah. Tuan rumah adalah mitra kami, bukan staf hotel. Sapa dan hormati mereka.',
+      'Di dekat alam, udara bisa dingin, sinyal lemah, dan cuaca cepat berubah. Bawa jaket dan uang tunai pecahan kecil untuk layanan tambahan.',
+      'Identitas dicek langsung saat check-in. Situs ini tidak meminta foto KTP.'],
+    guarantee: ['Tiap rumah sudah diperiksa pendamping lokal dan disetujui admin: kunci, kamar mandi, kasur dan linen, listrik dan lampu, privasi, serta daftar harga yang jelas.',
+      'Tarif kamar jelas, tanpa biaya tersembunyi. Tagihan di luar daftar harga bisa dilaporkan lewat Lapor masalah.',
+      'Batal paling lambat H-3 check-in dapat refund 100%.'],
+    faq: [['Kapan aku bayar?', 'Segera setelah booking terkirim. Nominal transfer berlaku 60 menit, lewat dari itu tanggal dibuka lagi untuk tamu lain.'],
+      ['Gimana kalau aku batal?', 'Buka Cek booking, masukkan kode booking dan 4 digit akhir WA. Batal paling lambat H-3 check-in refund 100%, H-2 sampai H-1 refund 50%, di hari check-in tidak ada refund.'],
+      ['Gimana kalau ada masalah di rumah?', 'Chat pendamping lokal lewat WhatsApp, atau kirim Lapor masalah dengan kode booking. Kami bantu sampai beres.'],
+      ['Makan sudah termasuk?', 'Belum. Sarapan dan makan itu layanan tambahan yang dibayar langsung ke tuan rumah sesuai daftar harga.']]
+  },
+};
+function renderHow() {
+  const H = HOW[S.lang] || HOW.id;
+  const h3 = (k) => '<h3 class="font-display text-lg font-bold text-forest mt-5 mb-2">' + esc(t(k)) + '</h3>';
+  $('#howBody').innerHTML =
+    h3('howStepsH') + '<ol class="space-y-2">' + H.steps.map((x, i) => '<li class="flex gap-3 rounded-2xl bg-cream p-3"><span class="shrink-0 w-8 h-8 rounded-full bg-forest text-white font-bold flex items-center justify-center">' + (i + 1) + '</span><div class="min-w-0"><p class="font-semibold text-forest">' + esc(x[0]) + '</p><p class="text-sm text-ink/75 mt-0.5">' + esc(x[1]) + '</p></div></li>').join('') + '</ol>' +
+    h3('howExpectH') + '<ul class="list-disc pl-5 space-y-1.5 text-sm text-ink/85">' + H.expect.map((x) => '<li>' + esc(x) + '</li>').join('') + '</ul>' +
+    h3('howGuaranteeH') + '<ul class="space-y-1.5 text-sm text-ink/85">' + H.guarantee.map((x) => '<li class="flex gap-2">' + check + '<span>' + esc(x) + '</span></li>').join('') + '</ul>' +
+    '<button type="button" data-howrules class="btn btn-ghost mt-3 text-sm">' + esc(t('howRulesBtn')) + '</button>' +
+    h3('howFaqH') + '<div class="space-y-2">' + H.faq.map((x) => '<details class="rounded-2xl border border-black/10 p-3"><summary class="font-semibold text-forest cursor-pointer min-h-[28px]">' + esc(x[0]) + '</summary><p class="mt-2 text-sm text-ink/80">' + esc(x[1]) + '</p></details>').join('') + '</div>';
+}
+function openHow() { renderHow(); track('open_how'); openLayer('howModal'); $('#howBody').scrollTop = 0; }
+document.addEventListener('click', (e) => { if (e.target.closest('[data-how]')) { openHow(); return; } if (e.target.closest('[data-howrules]')) openRules('guest'); });
+
+function demoMergeBlocks() { const sv = store.get('bn_demo_hblocks', {}); Object.keys(sv).forEach((id) => { S.blocks[id] = sv[id]; }); const op = store.get('bn_demo_open', {}); S.homes.forEach((h) => { if (op[h.id] === false) h.closed = true; }); }
+
+/* ============ EXPORT KE MODUL ============ */
+function dragScroll(el) {
+  if (!el) return; el.classList.add('drag-x'); let down = false, sx = 0, sl = 0, moved = false;
+  el.addEventListener('pointerdown', (e) => { if (e.pointerType !== 'mouse' || e.button !== 0) return; down = true; moved = false; sx = e.clientX; sl = el.scrollLeft; });
+  window.addEventListener('pointermove', (e) => { if (!down) return; const dx = e.clientX - sx; if (!moved && Math.abs(dx) > 5) { moved = true; el.classList.add('dragging'); } if (moved) el.scrollLeft = sl - dx; });
+  window.addEventListener('pointerup', () => { if (!down) return; down = false; el.classList.remove('dragging'); });
+  el.addEventListener('click', (e) => { if (moved) { e.stopPropagation(); e.preventDefault(); moved = false; } }, true);
+}
+dragScroll($('#areas')); dragScroll($('#pills'));
+window.__BN = { $, $$, WA_PUSAT, renderCatalog, APPS_SCRIPT_URL, COMPANY_BANK, COMPANY_NAME, DEMO_ADMIN_PIN, S, STD, addDays, apiPost, check, copySync, demoBookings, demoUpdate, errMsg, esc, fmtDate, loc2, normPhone, openLayer, rp, star, store, t, toast, todayISO, track, waLink };
+/* ============ MODUL ADMIN & PORTAL MITRA (dimuat saat dibuka) ============ */
+let adminP = null;
+function loadAdmin() {
+  if (window.__BN.admin) return Promise.resolve();
+  if (!adminP) adminP = new Promise((res, rej) => { const sc = document.createElement('script'); sc.src = 'admin.js?v=1'; sc.onload = res; sc.onerror = () => { adminP = null; rej(new Error('load')); }; document.head.appendChild(sc); });
+  return adminP;
+}
+const openModul = (fn) => async () => { netStart(); try { await loadAdmin(); netEnd(); window.__BN[fn](); } catch (e) { netEnd(); toast('Gagal memuat panel. Cek koneksi, lalu coba lagi.'); } };
+$('#btnDispatchFoot').addEventListener('click', openModul('openDispatch'));
+$('#btnPartnerFoot').addEventListener('click', openModul('openPartner'));
+
+let errSent = 0; // log error klien ringan: maksimal 3 per kunjungan, tanpa data pribadi
+window.addEventListener('error', (e) => { if (!APPS_SCRIPT_URL || errSent >= 3) return; errSent++; try { const p = apiPost({ action: 'clientError', where: String(e.filename || '').split('/').pop() + ':' + (e.lineno || 0), msg: String(e.message || ''), ua: navigator.userAgent.slice(0, 80) }, true); if (p && p.catch) p.catch(() => {}); } catch (x) {} });
+
+/* ============ INIT ============ */
+(async function init() {
+  renderPills(); applyI18n();
+  $('#grid').innerHTML = '<p class="col-span-full text-ink/60">…</p>';
+  await loadHomes(); if (S.demo) demoMergeBlocks(); applyUrlArea();
+  renderAll();
+  applyUrlHome();
+  flushPending();
+})();
+})();
+</script>
+</body>
+</html>
